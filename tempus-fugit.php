@@ -23,6 +23,8 @@ class Tempus_Fugit_Plugin {
 	}
 
 	public static function init() {
+		require_once plugin_dir_path( __FILE__ ) . '/includes/rewrite-functions.php';
+
 		require_once plugin_dir_path( __FILE__ ) . '/includes/class-day-of-year.php';
 		new Day_Of_Year();
 		Day_Of_Year::rewrite_rules();
