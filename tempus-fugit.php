@@ -20,6 +20,14 @@ class Tempus_Fugit_Plugin {
 
 	public static function plugins_loaded() {
 		add_filter( 'pre_get_posts', array( __CLASS__, 'date_sort' ) );
+		require_once plugin_dir_path( __FILE__ ) . '/includes/class-onthisday-widget.php';
+		// Register Widgets
+		add_action(
+			'widgets_init',
+			function() {
+					register_widget( 'OnThisDay_Widget' );
+			}
+		);
 	}
 
 	public static function init() {
