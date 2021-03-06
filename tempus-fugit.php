@@ -20,14 +20,18 @@ class Tempus_Fugit_Plugin {
 
 	public static function plugins_loaded() {
 		add_filter( 'pre_get_posts', array( __CLASS__, 'date_sort' ) );
-		require_once plugin_dir_path( __FILE__ ) . '/includes/class-onthisday-widget.php';
-		// Register Widgets
-		add_action(
-			'widgets_init',
-			function() {
+
+		// As this is being ported from the Kind On This Day Widget do Not Load if it is Loaded.
+		if ( ! class_exists( 'Kind_OnThisDay_Widget' ) ) {
+			require_once plugin_dir_path( __FILE__ ) . '/includes/class-onthisday-widget.php';
+			// Register Widgets
+			add_action(
+				'widgets_init',
+				function() {
 					register_widget( 'OnThisDay_Widget' );
-			}
-		);
+				}
+			);
+		}
 	}
 
 	public static function init() {
@@ -36,6 +40,10 @@ class Tempus_Fugit_Plugin {
 		require_once plugin_dir_path( __FILE__ ) . '/includes/class-day-of-year.php';
 		new Day_Of_Year();
 		Day_Of_Year::rewrite_rules();
+
+		require_once plugin_dir_path( __FILE__ ) . '/includes/class-order-by.php';
+		new Order_By();
+		Order_By::rewrite_rules();
 
 		require_once plugin_dir_path( __FILE__ ) . '/includes/class-on-this-day.php';
 		new On_This_Day();

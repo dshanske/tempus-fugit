@@ -9,7 +9,7 @@ function tf_get_feeds() {
 	return $wp_rewrite->feeds;
 }
 
-function tf_get_feed_regex() {
+function tf_get_feed_regex( $base = true ) {
 	global $wp_rewrite;
 	// Build a regex to match the feed section of URLs, something like (feed|atom|rss|rss2)/?
 	$feedregex2 = '';
@@ -18,8 +18,11 @@ function tf_get_feed_regex() {
 	}
 
 	$feedregex2 = '(' . trim( $feedregex2, '|' ) . ')/?$';
-
-	return $wp_rewrite->feed_base . '/' . $feedregex2;
+	if ( $base ) {
+		return $wp_rewrite->feed_base . '/' . $feedregex2;
+	} else {
+		return '/' . $feedregex2;
+	}
 }
 
 function tf_get_pagination_regex() {
