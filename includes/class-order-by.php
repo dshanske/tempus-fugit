@@ -9,7 +9,7 @@ class Order_By {
 		add_action( 'plugins_loaded', array( __CLASS__, 'plugins_loaded' ) );
 		add_filter( 'pre_get_posts', array( __CLASS__, 'order_by' ) );
 		add_filter( 'query_vars', array( __CLASS__, 'query_vars' ) );
-		//add_filter( 'get_the_archive_title', array( __CLASS__, 'archive_title' ) );
+		add_filter( 'get_the_archive_title', array( __CLASS__, 'archive_title' ) );
 		add_filter( 'document_title_parts', array( __CLASS__, 'title_parts' ) );
 	}
 
@@ -71,37 +71,33 @@ class Order_By {
 	}
 
 
-	public static function is_sort() {
-		return ( get_query_var( 'sort' ) );
-	}
-
 	public static function archive_title( $title ) {
-		if ( self::is_updated() ) {
-			$title  = 'Updated'; // get_the_date( _x( 'F j, Y', 'daily archives date format' ) );
-			$prefix = _x( 'Day:', 'date archive title prefix' );
-			/**
-			 * Filters the archive title prefix.
-			 *
-			 * @since 5.5.0
-			 *
-			 * @param string $prefix Archive title prefix.
-			 */
-			$prefix = apply_filters( 'get_the_archive_title_prefix', $prefix );
-			if ( $prefix ) {
-				$title = sprintf(
-				 /* translators: 1: Title prefix. 2: Title. */
-					_x( '%1$s %2$s', 'archive title' ),
-					$prefix,
-					'<span>' . $title . '</span>'
-				);
+		$sort = get_query_var( 'sort' );
+		if ( $sort ) {
+			$return = self::title( $sort );
+			if ( $return ) {
+				return $return;
 			}
 		}
 		return $title;
 	}
 
+	public static function title( $sort ) {
+		$title = '';
+		if ( 'updated' === $sort ) {
+			$title  = __( 'Last Updated', 'tempus-fugit' );
+		} else if ( 'random' === $sort ) {
+			$title = __( 'Random Posts', 'tempus-fugit' );
+		} else if ( 'oldest' === $sort ) {
+			$title = __( 'Oldest Posts', 'tempus-fugit' );
+		}
+		return $title;
+	}
+
 	public static function title_parts( $title ) {
-		if ( self::is_sort() ) {
-			$title['title'] = 'Archive';
+		$sort = get_query_var( 'sort' );
+		if ( $sort ) {
+			$title['title'] = self::title( $sort );
 		}
 		return $title;
 	}
