@@ -23,12 +23,12 @@ class Tempus_Fugit_Plugin {
 
 		// As this is being ported from the Kind On This Day Widget do Not Load if it is Loaded.
 		if ( ! class_exists( 'Kind_OnThisDay_Widget' ) ) {
-			require_once plugin_dir_path( __FILE__ ) . '/includes/class-onthisday-widget.php';
+			require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-onthisday-widget.php';
 			// Register Widgets
 			add_action(
 				'widgets_init',
 				function() {
-					register_widget( 'OnThisDay_Widget' );
+					register_widget( 'Tempus_OnThisDay_Widget' );
 				}
 			);
 		}
@@ -37,17 +37,17 @@ class Tempus_Fugit_Plugin {
 	public static function init() {
 		require_once plugin_dir_path( __FILE__ ) . '/includes/rewrite-functions.php';
 
-		require_once plugin_dir_path( __FILE__ ) . '/includes/class-day-of-year.php';
-		new Day_Of_Year();
-		Day_Of_Year::rewrite_rules();
+		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-day-of-year.php';
+		new Tempus_Day_Of_Year();
+		Tempus_Day_Of_Year::rewrite_rules();
 
-		require_once plugin_dir_path( __FILE__ ) . '/includes/class-order-by.php';
+		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-order-by.php';
 		new Order_By();
-		Order_By::rewrite_rules();
+		Tempus_Order_By::rewrite_rules();
 
-		require_once plugin_dir_path( __FILE__ ) . '/includes/class-on-this-day.php';
-		new On_This_Day();
-		On_This_Day::rewrite_rules();
+		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-on-this-day.php';
+		new Tempus_On_This_Day();
+		Tempus_On_This_Day::rewrite_rules();
 	}
 
 	public static function upgrader_process_complete( $upgrade_object, $options ) {
@@ -55,8 +55,8 @@ class Tempus_Fugit_Plugin {
 		if ( ( 'update' === $options['action'] ) && ( 'plugin' === $options['type'] ) ) {
 			foreach ( $options['plugins'] as $each_plugin ) {
 				if ( $each_plugin === $current_plugin_path_name ) {
-					require_once plugin_dir_path( __FILE__ ) . '/includes/class-day-of-year.php';
-					new Day_Of_Year();
+					require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-day-of-year.php';
+					new Tempus_Day_Of_Year();
 					flush_rewrite_rules();
 				}
 			}
@@ -65,7 +65,7 @@ class Tempus_Fugit_Plugin {
 
 	public static function activate() {
 		require_once plugin_dir_path( __FILE__ ) . '/includes/class-day-of-year.php';
-		new Day_Of_Year();
+		new Tempus_Day_Of_Year();
 		flush_rewrite_rules();
 	}
 

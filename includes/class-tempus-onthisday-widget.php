@@ -1,12 +1,12 @@
 <?php
 
-class OnThisDay_Widget extends WP_Widget {
+class Tempus_OnThisDay_Widget extends WP_Widget {
 	/**
 	 * Register widget with WordPress.
 	 */
 	public function __construct() {
 		parent::__construct(
-			'OnThisDay_Widget',                // Base ID
+			'Tempus_OnThisDay_Widget',                // Base ID
 			__( 'On This Day Widget', 'onthisdaywidget' ),        // Name
 			array(
 				'classname'   => 'onthisday_widget',

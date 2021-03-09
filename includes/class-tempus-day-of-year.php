@@ -4,7 +4,7 @@
  *
  * Adds the ability to have permalinks with the day of the year.
  */
-class Day_Of_Year {
+class Tempus_Day_Of_Year {
 	public function __construct() {
 		add_action( 'plugins_loaded', array( __CLASS__, 'plugins_loaded' ) );
 		add_filter( 'pre_get_posts', array( __CLASS__, 'day_of_year' ) );

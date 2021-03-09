@@ -4,7 +4,7 @@
  *
  * Adds the ability to have Order By Permalinks
  */
-class Order_By {
+class Tempus_Order_By {
 	public function __construct() {
 		add_action( 'plugins_loaded', array( __CLASS__, 'plugins_loaded' ) );
 		add_filter( 'pre_get_posts', array( __CLASS__, 'order_by' ) );
@@ -25,18 +25,18 @@ class Order_By {
 	public static function rewrite_rules() {
 		$sort = '(updated|oldest|random)/';
 		add_rewrite_rule( 
-			$sort . tf_get_feed_regex( false ),
+			$sort . tempus_get_feed_regex( false ),
 			'index.php?feed=$matches[2]&sort=$matches[1]',
 			'top'
 		);
 		add_rewrite_rule( 
-			$sort . tf_get_feed_regex(),
+			$sort . tempus_get_feed_regex(),
 			'index.php?feed=$matches[2]&sort=$matches[1]',
 			'top'
 		);
 
 		add_rewrite_rule( 
-			$sort . tf_get_pagination_regex(),
+			$sort . tempus_get_pagination_regex(),
 			'index.php?sort=$matches[1]&paged=$matches[2]',
 			'top'
 		);

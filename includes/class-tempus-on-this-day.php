@@ -4,7 +4,7 @@
  *
  * Adds On This Day functionality
  */
-class On_This_Day {
+class Tempus_On_This_Day {
 	public function __construct() {
 		add_action( 'plugins_loaded', array( __CLASS__, 'plugins_loaded' ) );
 		add_filter( 'pre_get_posts', array( __CLASS__, 'pre_get_posts' ) );
@@ -27,7 +27,7 @@ class On_This_Day {
 
 		// On This Specific Day.
 		add_rewrite_rule(
-			sprintf( '%1$s/([0-9]{2})/([0-9]{2})/%2$s', $onthisday_slug, tf_get_pagination_regex() ),
+			sprintf( '%1$s/([0-9]{2})/([0-9]{2})/%2$s', $onthisday_slug, tempus_get_pagination_regex() ),
 			'index.php?onthisday=1&monthnum=$matches[1]&day=$matches[2]&paged=$matches[3]',
 			'top'
 		);
@@ -44,13 +44,13 @@ class On_This_Day {
 			'top'
 		);
 		add_rewrite_rule(
-			$onthisday_slug . '/' . tf_get_feed_regex(),
+			$onthisday_slug . '/' . tempus_get_feed_regex(),
 			'index.php?feed=$matches[1]&onthisday=1',
 			'top'
 		);
 
 		add_rewrite_rule(
-			sprintf( '%1$s/%2$s', $onthisday_slug, tf_get_pagination_regex() ),
+			sprintf( '%1$s/%2$s', $onthisday_slug, tempus_get_pagination_regex() ),
 			'index.php?onthisday=1&paged=$matches[1]',
 			'top'
 		);
