@@ -42,7 +42,7 @@ class Tempus_Fugit_Plugin {
 		Tempus_Day_Of_Year::rewrite_rules();
 
 		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-order-by.php';
-		new Order_By();
+		new Tempus_Order_By();
 		Tempus_Order_By::rewrite_rules();
 
 		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-on-this-day.php';

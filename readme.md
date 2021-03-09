@@ -16,7 +16,8 @@ This is a compilation of many tweaks to improve your site, including...
 
 1. Date Based Archives will show up from oldest to newest, instead of newest first. When you are scrolling through memory lane, you want to do it in order.
 2. Adds the %dayofyear% tag so you can have your permalinks as /%year%/%dayofyear% instead of month and day.
-3. Adds On This Day URLs and Widget
+3. Adds On This Day URLs and Widgets
+4. Adds /updated, /random, /oldest as top level archives
 
 
 ## Installation ##
