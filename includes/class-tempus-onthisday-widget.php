@@ -68,7 +68,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 			$organize[ $diff ][] = $this->list_item( $post );
 		}
 
-		echo '<div id="onthisday">';
+		echo '<div id="tempus-onthisday">';
 		if ( ! empty( $organize ) ) {
 			echo '<ul>';
 			foreach ( $organize as $title => $year ) {
