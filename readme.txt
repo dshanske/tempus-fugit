@@ -1,7 +1,7 @@
 === Tempus Fugit ===
 Contributors: dshanske
 Tags: time, archive, date, onthisday
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires at least: 4.9.9
 Requires PHP: 5.6
 Tested up to: 5.7
@@ -36,6 +36,9 @@ I realized I was doing a lot of these little enhancements in other places, likeb
 So I split all of these time based enhancements into their own thing.
 
 == Changelog ==
+
+= Version 1.0.1 ( 2021-03-09 ) =
+* Fix Activation Only Issue
 
 = Version 1.0 (2021-03-09) =
 * Initial Release
