@@ -24,24 +24,24 @@ class Tempus_Order_By {
 
 	public static function rewrite_rules() {
 		$sort = '(updated|oldest|random)/';
-		add_rewrite_rule( 
+		add_rewrite_rule(
 			$sort . tempus_get_feed_regex( false ),
 			'index.php?feed=$matches[2]&sort=$matches[1]',
 			'top'
 		);
-		add_rewrite_rule( 
+		add_rewrite_rule(
 			$sort . tempus_get_feed_regex(),
 			'index.php?feed=$matches[2]&sort=$matches[1]',
 			'top'
 		);
 
-		add_rewrite_rule( 
+		add_rewrite_rule(
 			$sort . tempus_get_pagination_regex(),
 			'index.php?sort=$matches[1]&paged=$matches[2]',
 			'top'
 		);
 
-		add_rewrite_rule( 
+		add_rewrite_rule(
 			$sort . '?$',
 			'index.php?sort=$matches[1]',
 			'top'
@@ -56,15 +56,15 @@ class Tempus_Order_By {
 		}
 
 		if ( ! empty( $query->get( 'sort' ) ) ) {
-			$query->is_archive = true;
-			$query->is_home = false;
+			$query->is_archive      = true;
+			$query->is_home         = false;
 			$query->is_comment_feed = false;
 		}
 		if ( 'updated' === $query->get( 'sort' ) ) {
 			$query->set( 'orderby', 'modified' );
-		} else if ( 'oldest' === $query->get( 'sort' ) ) {
+		} elseif ( 'oldest' === $query->get( 'sort' ) ) {
 			$query->set( 'order', 'ASC' );
-		} else if ( 'random' === $query->get( 'sort' ) ) {
+		} elseif ( 'random' === $query->get( 'sort' ) ) {
 			$query->set( 'orderby', 'rand' );
 		}
 		return $query;
@@ -85,10 +85,10 @@ class Tempus_Order_By {
 	public static function title( $sort ) {
 		$title = '';
 		if ( 'updated' === $sort ) {
-			$title  = __( 'Last Updated', 'tempus-fugit' );
-		} else if ( 'random' === $sort ) {
+			$title = __( 'Last Updated', 'tempus-fugit' );
+		} elseif ( 'random' === $sort ) {
 			$title = __( 'Random Posts', 'tempus-fugit' );
-		} else if ( 'oldest' === $sort ) {
+		} elseif ( 'oldest' === $sort ) {
 			$title = __( 'Oldest Posts', 'tempus-fugit' );
 		}
 		return $title;

@@ -1,0 +1,81 @@
+# Copyright (C) 2021 David Shanske
+# This file is distributed under the same license as the Tempus Fugit plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Tempus Fugit 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/tempus-fugit\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2021-03-10T02:47:12+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.4.0\n"
+"X-Domain: tempus-fugit\n"
+
+#. Plugin Name of the plugin
+msgid "Tempus Fugit"
+msgstr ""
+
+#. Plugin URI of the plugin
+msgid "https://github.com/dshanske/tempus-fugit"
+msgstr ""
+
+#. Description of the plugin
+msgid "Enhance your Time Based Experiences in WordPress"
+msgstr ""
+
+#. Author of the plugin
+msgid "David Shanske"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://david.shanske.com"
+msgstr ""
+
+#. translators: The numerical day of tyhe year.
+#: includes/class-tempus-day-of-year.php:62
+msgid "%s (Day of the year, for example 366.)"
+msgstr ""
+
+#: includes/class-tempus-onthisday-widget.php:10
+msgid "On This Day Widget"
+msgstr ""
+
+#: includes/class-tempus-onthisday-widget.php:13
+msgid "A widget that allows you to display a list of posts from this day in history"
+msgstr ""
+
+#: includes/class-tempus-onthisday-widget.php:29
+msgid "There were no posts on this day in previous years"
+msgstr ""
+
+#. translators: %s: Human-readable time difference.
+#: includes/class-tempus-onthisday-widget.php:77
+msgid "%s ago..."
+msgstr ""
+
+#: includes/class-tempus-onthisday-widget.php:150
+msgid "Title: "
+msgstr ""
+
+#: includes/class-tempus-onthisday-widget.php:154
+msgid "Number of Posts:"
+msgstr ""
+
+#: includes/class-tempus-onthisday-widget.php:156
+msgid "Text if No Posts Found:"
+msgstr ""
+
+#: includes/class-tempus-order-by.php:88
+msgid "Last Updated"
+msgstr ""
+
+#: includes/class-tempus-order-by.php:90
+msgid "Random Posts"
+msgstr ""
+
+#: includes/class-tempus-order-by.php:92
+msgid "Oldest Posts"
+msgstr ""

@@ -58,7 +58,8 @@ class Tempus_Day_Of_Year {
 	}
 
 	public static function archive_permalink_structure_tags( $tags ) {
-		$tags['dayofyear'] = __( '%s (Day of the year, for example 366.)' );
+		/* translators: The numerical day of tyhe year. */
+		$tags['dayofyear'] = __( '%s (Day of the year, for example 366.)', 'tempus-fugit' );
 		return $tags;
 	}
 
@@ -76,8 +77,8 @@ class Tempus_Day_Of_Year {
 
 	public static function archive_title( $title ) {
 		if ( self::is_dayofyear() ) {
-			$title  = get_the_date( _x( 'F j, Y', 'daily archives date format' ) );
-			$prefix = _x( 'Day:', 'date archive title prefix' );
+			$title  = get_the_date( _x( 'F j, Y', 'daily archives date format', 'default' ) );
+			$prefix = _x( 'Day:', 'date archive title prefix', 'default' );
 			/**
 			 * Filters the archive title prefix.
 			 *
@@ -89,7 +90,7 @@ class Tempus_Day_Of_Year {
 			if ( $prefix ) {
 				$title = sprintf(
 				 /* translators: 1: Title prefix. 2: Title. */
-					_x( '%1$s %2$s', 'archive title' ),
+					_x( '%1$s %2$s', 'archive title', 'default' ),
 					$prefix,
 					'<span>' . $title . '</span>'
 				);

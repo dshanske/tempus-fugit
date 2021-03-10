@@ -71,11 +71,11 @@ class Tempus_On_This_Day {
 		$onthisday = get_query_var( 'onthisday' );
 		// Return if  not set
 		if ( $onthisday && empty( get_query_var( 'year' ) ) && empty( get_query_var( 'monthnum' ) ) && empty( get_query_var( 'day' ) ) ) {
-			$now               = new DateTime( 'now', wp_timezone() );
-			$query->is_date    = true;
-			$query->is_day     = true;
-			$query->is_home    = false;
-			$query->is_archive = true;
+			$now                    = new DateTime( 'now', wp_timezone() );
+			$query->is_date         = true;
+			$query->is_day          = true;
+			$query->is_home         = false;
+			$query->is_archive      = true;
 			$query->is_comment_feed = false;
 			$query->set(
 				'date_query',

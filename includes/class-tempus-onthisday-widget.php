@@ -7,7 +7,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'Tempus_OnThisDay_Widget',                // Base ID
-			__( 'On This Day Widget', 'onthisdaywidget' ),        // Name
+			__( 'On This Day Widget', 'tempus-fugit' ),        // Name
 			array(
 				'classname'   => 'onthisday_widget',
 				'description' => __( 'A widget that allows you to display a list of posts from this day in history', 'tempus-fugit' ),
@@ -41,7 +41,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 		$instance = $this->defaults( $instance );
-		$date     = new DateTime( "now", wp_timezone() );
+		$date     = new DateTime( 'now', wp_timezone() );
 		// phpcs:ignore
 		echo $args['before_widget'];
 		if ( ! empty( $instance['title'] ) ) {
@@ -107,12 +107,12 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 * @return string
 	 */
 	public function get_the_title( $post ) {
-		$post      = get_post( $post );
+		$post = get_post( $post );
 		if ( ! empty( $post->post_title ) ) {
 			$title = $post->post_title;
-		} else if ( ! empty( $post->post_excerpt ) ) {
+		} elseif ( ! empty( $post->post_excerpt ) ) {
 			$title = $post->post_excerpt;
-		} else if ( ! empty( $post->post_content ) ) {
+		} elseif ( ! empty( $post->post_content ) ) {
 			$title = mb_strimwidth( wp_strip_all_tags( $post->post_content ), 0, 40, '...' );
 		} else {
 			$title = get_the_date( 'Y ' . get_option( 'time_format' ), $post );
@@ -145,7 +145,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 * @param array $instance Previously saved values from database.
 	 */
 	public function form( $instance ) {
-		$instance         = $this->defaults( $instance );
+		$instance = $this->defaults( $instance );
 		?>
 				<p><label for="title"><?php esc_html_e( 'Title: ', 'tempus-fugit' ); ?></label>
 				<input type="text" size="30" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?> id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"
