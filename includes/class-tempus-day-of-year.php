@@ -35,6 +35,17 @@ class Tempus_Day_Of_Year {
 				'ep_mask'    => EP_DATE,
 			)
 		);
+
+		if ( class_exists( 'Kind_Taxonomy' ) ) {
+	
+			add_permastruct(
+				'kind_dayofyear', 
+				'kind/%kind%/%year%/%dayofyear%/', 
+				array( 
+					'walk_dirs' => false 
+				) 
+			);
+		}
 	}
 
 	public static function day_of_year( $query ) {
