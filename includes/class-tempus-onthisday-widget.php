@@ -41,12 +41,12 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 		$instance = $this->defaults( $instance );
-		// $date = new DateTime( '2020-01-01' ); // Uncomment for testing
+	 	// $date = new DateTime( '2020-01-01' ); // Uncomment for testing
 		$date     = new DateTime( 'now', wp_timezone() );
 		// phpcs:ignore
 		echo $args['before_widget'];
 		if ( ! empty( $instance['title'] ) ) {
-			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title']; // phpcs:ignore
+			echo $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', Tempus_On_This_Day::get_link(), apply_filters( 'widget_title', $instance['title'] ) ) . $args['after_title']; // phpcs:ignore
 		}
 		$transient = 'onthisday_widget' . $date->format( 'm-d' );
 		$posts     = get_transient( $transient );

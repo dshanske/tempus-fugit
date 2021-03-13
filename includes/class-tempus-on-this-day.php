@@ -22,8 +22,34 @@ class Tempus_On_This_Day {
 		return $var;
 	}
 
+	public static function get_slug() {
+		return apply_filters( 'tempus_fugit_onthisday_slug', 'onthisday' );
+	}
+
+	public static function get_link() {
+		if ( is_multisite() && get_blog_option( $blog_id, 'permalink_structure' ) || get_option( 'permalink_structure' ) ) {
+				global $wp_rewrite;
+			if ( $wp_rewrite->using_index_permalinks() ) {
+				$url = get_home_url( $blog_id, $wp_rewrite->index . '/onthisday', $scheme );
+
+			} else {
+				$url = get_home_url( $blog_id, 'onthisday', $scheme );
+			}
+		} else {
+				 $url = trailingslashit( get_home_url( $blog_id, '', $scheme ) );
+				 // nginx only allows HTTP/1.0 methods when redirecting from / to /index.php.
+				 // To work around this, we manually add index.php to the URL, avoiding the redirect.
+			if ( 'index.php' !== substr( $url, 9 ) ) {
+				$url .= 'index.php';
+			}
+
+			$url = add_query_arg( 'onthisday', 1, $url );
+		}
+		return $url;
+	}
+
 	public static function rewrite_rules() {
-		$onthisday_slug = apply_filters( 'tempus_fugit_onthisday_slug', 'onthisday' );
+		$onthisday_slug = self::get_slug();
 
 		// On This Specific Day.
 		add_rewrite_rule(
