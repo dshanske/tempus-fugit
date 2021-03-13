@@ -41,8 +41,8 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 		$instance = $this->defaults( $instance );
-	 	// $date = new DateTime( '2020-01-01' ); // Uncomment for testing
-		$date     = new DateTime( 'now', wp_timezone() );
+		// $date = new DateTime( '2020-01-01' ); // Uncomment for testing
+		$date = new DateTime( 'now', wp_timezone() );
 		// phpcs:ignore
 		echo $args['before_widget'];
 		if ( ! empty( $instance['title'] ) ) {
