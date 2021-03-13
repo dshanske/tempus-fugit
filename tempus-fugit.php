@@ -36,6 +36,7 @@ class Tempus_Fugit_Plugin {
 
 	public static function init() {
 		require_once plugin_dir_path( __FILE__ ) . '/includes/rewrite-functions.php';
+		require_once plugin_dir_path( __FILE__ ) . '/includes/functions.php';
 
 		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-day-of-year.php';
 		new Tempus_Day_Of_Year();

@@ -41,6 +41,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 		$instance = $this->defaults( $instance );
+		// $date = new DateTime( '2020-01-01' ); // Uncomment for testing
 		$date     = new DateTime( 'now', wp_timezone() );
 		// phpcs:ignore
 		echo $args['before_widget'];
@@ -61,7 +62,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 		set_transient( $transient, $posts, HOUR_IN_SECONDS );
 		$organize = array();
 		foreach ( $posts as $post ) {
-			$diff = human_time_diff( get_post_timestamp( $post ) );
+			$diff = sprintf( '<a href="%1$s">%2$s</a>', tempus_get_post_day_link( $post ), human_time_diff( get_post_timestamp( $post ) ) );
 			if ( ! array_key_exists( $diff, $organize ) ) {
 				$organize[ $diff ] = array();
 			}
