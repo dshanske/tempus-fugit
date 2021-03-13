@@ -2,9 +2,10 @@
 /**
  * Global Functions
  */
-function tempus_get_post_day_link( $post ) {
+function tempus_get_post_day_link( $post = null ) {
+	$post = get_post( $post ); // Allows support of current post and post ID.
 	global $wp_rewrite;
-		$daylink = $wp_rewrite->get_day_permastruct();
+	$daylink = $wp_rewrite->get_day_permastruct();
 	$datetime    = get_post_datetime( $post );
 	$year        = $datetime->format( 'Y' );
 	$month       = $datetime->format( 'm' );
