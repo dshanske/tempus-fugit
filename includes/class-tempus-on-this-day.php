@@ -26,17 +26,17 @@ class Tempus_On_This_Day {
 		return apply_filters( 'tempus_fugit_onthisday_slug', 'onthisday' );
 	}
 
-	public static function get_link() {
+	public static function get_link( $blog_id = null ) {
 		if ( is_multisite() && get_blog_option( $blog_id, 'permalink_structure' ) || get_option( 'permalink_structure' ) ) {
 				global $wp_rewrite;
 			if ( $wp_rewrite->using_index_permalinks() ) {
-				$url = get_home_url( $blog_id, $wp_rewrite->index . '/onthisday', $scheme );
+				$url = get_home_url( $blog_id, $wp_rewrite->index . '/onthisday' );
 
 			} else {
-				$url = get_home_url( $blog_id, 'onthisday', $scheme );
+				$url = get_home_url( $blog_id, 'onthisday' );
 			}
 		} else {
-				 $url = trailingslashit( get_home_url( $blog_id, '', $scheme ) );
+				 $url = trailingslashit( get_home_url( $blog_id, '' ) );
 				 // nginx only allows HTTP/1.0 methods when redirecting from / to /index.php.
 				 // To work around this, we manually add index.php to the URL, avoiding the redirect.
 			if ( 'index.php' !== substr( $url, 9 ) ) {
