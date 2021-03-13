@@ -29,3 +29,12 @@ function tempus_get_pagination_regex() {
 	global $wp_rewrite;
 	return $wp_rewrite->pagination_base . '/?([0-9]{1,})/?$';
 }
+
+function tempus_generate_permastruct( $elements ) {
+	if ( empty( $elements ) || ! is_array( $elements ) ) {
+		return '';
+	}
+		$elements[] = '?$';
+		return implode( '/', $elements );
+}
+

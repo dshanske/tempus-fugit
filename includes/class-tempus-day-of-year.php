@@ -37,13 +37,13 @@ class Tempus_Day_Of_Year {
 		);
 
 		if ( class_exists( 'Kind_Taxonomy' ) ) {
-	
+
 			add_permastruct(
-				'kind_dayofyear', 
-				'kind/%kind%/%year%/%dayofyear%/', 
-				array( 
-					'walk_dirs' => false 
-				) 
+				'kind_dayofyear',
+				'kind/%kind%/%year%/%dayofyear%/',
+				array(
+					'walk_dirs' => false,
+				)
 			);
 		}
 	}
@@ -79,7 +79,7 @@ class Tempus_Day_Of_Year {
 			return $permalink;
 		}
 		$datetime = get_post_datetime( $post );
-		return str_replace( '%dayofyear%', sprintf( '%03d', $datetime->format( 'z' ) ), $permalink );
+		return str_replace( '%dayofyear%', zeroise( $datetime->format( 'z' ), 3 ), $permalink );
 	}
 
 	public static function is_dayofyear() {
