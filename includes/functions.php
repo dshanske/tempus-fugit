@@ -5,12 +5,12 @@
 function tempus_get_post_day_link( $post = null ) {
 	$post = get_post( $post ); // Allows support of current post and post ID.
 	global $wp_rewrite;
-	$daylink = $wp_rewrite->get_day_permastruct();
-	$datetime    = get_post_datetime( $post );
-	$year        = $datetime->format( 'Y' );
-	$month       = $datetime->format( 'm' );
-	$day         = $datetime->format( 'd' );
-	$dayofyear   = $datetime->format( 'z' );
+	$daylink   = $wp_rewrite->get_day_permastruct();
+	$datetime  = get_post_datetime( $post );
+	$year      = $datetime->format( 'Y' );
+	$month     = $datetime->format( 'm' );
+	$day       = $datetime->format( 'd' );
+	$dayofyear = $datetime->format( 'z' );
 	if ( ! empty( $daylink ) ) {
 		$daylink = str_replace( '%year%', $year, $daylink );
 		$daylink = str_replace( '%monthnum%', zeroise( (int) $month, 2 ), $daylink );
@@ -23,3 +23,22 @@ function tempus_get_post_day_link( $post = null ) {
 	return $daylink;
 }
 
+/*
+ * Returns the date of the current archive
+ */
+function tempus_get_archive_date() {
+	if ( ! is_date() ) {
+		return false;
+	}
+	$return     = array();
+	$properties = array( 'day', 'monthnum', 'year', 'dayofyear', 'dayofweek', 'hour', 'minute', 'second', 'dayofweek_iso' );
+	foreach ( $properties as $var ) {
+		$return[ $var ] = get_query_var( $var );
+	}
+	$return = array_filter( $return );
+	if ( is_array( get_query_var( 'date_query' ) ) ) {
+		$date_query = wp_array_slice_assoc( get_query_var( 'date_query' ), $properties );
+		$return     = array_merge( $return, $date_query );
+	}
+	return array_filter( $return );
+}
