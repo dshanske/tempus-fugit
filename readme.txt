@@ -1,7 +1,7 @@
 === Tempus Fugit ===
 Contributors: dshanske
 Tags: time, archive, date, onthisday
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 Requires at least: 4.9.9
 Requires PHP: 5.6
 Tested up to: 5.7
@@ -36,6 +36,10 @@ I realized I was doing a lot of these little enhancements in other places, likeb
 So I split all of these time based enhancements into their own thing.
 
 == Changelog ==
+
+= Version 1.02 ( 2021-03-13 ) =
+* Link to day archive in On This Day widget
+* On This Day Widget Title links to On This Day Archive
 
 = Version 1.0.1 ( 2021-03-09 ) =
 * Fix Activation Only Issue
