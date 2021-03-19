@@ -38,7 +38,7 @@ So I split all of these time based enhancements into their own thing.
 
 == Changelog ==
 
-= Version 1.0.3 ( 2021-03-xx ) =
+= Version 1.0.3 ( 2021-03-19 ) =
 * Add Simple Location Map Rewrites
 * Add This Week Widget and URLs
 
