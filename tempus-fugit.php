@@ -49,6 +49,10 @@ class Tempus_Fugit_Plugin {
 		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-on-this-day.php';
 		new Tempus_On_This_Day();
 		Tempus_On_This_Day::rewrite_rules();
+
+		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-this-week.php';
+		new Tempus_This_Week();
+		Tempus_This_Week::rewrite_rules();
 	}
 
 	public static function upgrader_process_complete( $upgrade_object, $options ) {
@@ -59,6 +63,10 @@ class Tempus_Fugit_Plugin {
 					require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-day-of-year.php';
 					new Tempus_Day_Of_Year();
 					flush_rewrite_rules();
+
+					require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-this-week.php';
+					new Tempus_This_Week();
+					Tempus_This_Week::rewrite_rules();
 				}
 			}
 		}
@@ -68,6 +76,10 @@ class Tempus_Fugit_Plugin {
 		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-day-of-year.php';
 		new Tempus_Day_Of_Year();
 		flush_rewrite_rules();
+
+		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-this-week.php';
+		new Tempus_This_Week();
+		Tempus_This_Week::rewrite_rules();
 	}
 
 	public static function deactivate() {
