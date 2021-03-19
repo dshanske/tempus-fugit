@@ -24,11 +24,13 @@ class Tempus_Fugit_Plugin {
 		// As this is being ported from the Kind On This Day Widget do Not Load if it is Loaded.
 		if ( ! class_exists( 'Kind_OnThisDay_Widget' ) ) {
 			require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-onthisday-widget.php';
+			require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-thisweek-widget.php';
 			// Register Widgets
 			add_action(
 				'widgets_init',
 				function() {
 					register_widget( 'Tempus_OnThisDay_Widget' );
+					register_widget( 'Tempus_ThisWeek_Widget' );
 				}
 			);
 		}

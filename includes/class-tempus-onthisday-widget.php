@@ -55,7 +55,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 				'day'         => $date->format( 'd' ),
 				'monthnum'    => $date->format( 'm' ),
 				'numberposts' => $instance['number'],
-				'fields'      => 'ids',
+				'fields' => 'ids'
 			);
 			$posts = get_posts( $query );
 		}
@@ -118,7 +118,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 		} else {
 			$title = get_the_date( 'Y ' . get_option( 'time_format' ), $post );
 		}
-		$title = apply_filters( 'onthisday_widget_post_title', $title, $post );
+		$title = apply_filters( 'tempus_widget_post_title', $title, $post );
 		return trim( sprintf( '<a href="%1$s">%2$s</a>', get_the_permalink( $post ), $title ) );
 	}
 
