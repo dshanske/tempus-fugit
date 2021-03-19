@@ -52,9 +52,9 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 		$posts     = get_transient( $transient );
 		if ( false === $posts ) {
 			$query = array(
-				'w'         => $date->format( 'W' ),
+				'w'           => $date->format( 'W' ),
 				'numberposts' => $instance['number'],
-				'fields' => 'ids'
+				'fields'      => 'ids',
 			);
 			$posts = get_posts( $query );
 		}

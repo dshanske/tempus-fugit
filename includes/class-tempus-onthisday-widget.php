@@ -55,7 +55,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 				'day'         => $date->format( 'd' ),
 				'monthnum'    => $date->format( 'm' ),
 				'numberposts' => $instance['number'],
-				'fields' => 'ids'
+				'fields'      => 'ids',
 			);
 			$posts = get_posts( $query );
 		}
