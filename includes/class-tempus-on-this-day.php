@@ -87,12 +87,10 @@ class Tempus_On_This_Day {
 			'top'
 		);
 
-		/* On This Day Rewrites.
-
 		// If the Simple Location plugin is installed, add the On This Day rewrite options for the map view.
 		if ( class_exists( 'Simple_Location_Plugin' ) ) {
 			add_rewrite_rule(
-				sprintf( '%1$s/([0-9]{2})/([0-9]{2})/map/%2$s/([0-9]{1,})/?', $onthisday_slug, self::get_pagination_regex() ),
+				$onthisday_slug . '/([0-9]{2})/([0-9]{2})/map/' . tempus_get_pagination_regex(),
 				'index.php?monthnum=$matches[1]&day=$matches[2]&paged=$matches[3]&map=1',
 				'top'
 			);
@@ -103,7 +101,7 @@ class Tempus_On_This_Day {
 			);
 			// On This Day Today Map with Pagination
 			add_rewrite_rule(
-				sprintf( '%1$s/map/%2$s/([0-9]{1,})/?', $onthisday_slug, self::get_feed_regex() ),
+				$onthisday_slug . '/map/' . tempus_get_pagination_regex(),
 				'index.php?onthisday=1&paged=$matches[1]&map=1',
 				'top'
 			);
@@ -114,8 +112,6 @@ class Tempus_On_This_Day {
 				'top'
 			);
 		}
-		*/
-
 	}
 
 	public static function pre_get_posts( $query ) {
