@@ -144,7 +144,7 @@ class Tempus_This_Week {
 	public static function archive_title( $title ) {
 		if ( self::is_thisweek() ) {
 			$title  = get_the_date( _x( 'W', 'weekly archives date format', 'default' ) );
-			$prefix = _x( 'This Week:', 'date archive title prefix', 'default' );
+			$prefix = _x( 'Week:', 'date archive title prefix', 'default' );
 			/**
 			 * Filters the archive title prefix.
 			 *
@@ -166,9 +166,7 @@ class Tempus_This_Week {
 	}
 
 	public static function title_parts( $title ) {
-		if ( self::is_thisweek() ) {
-			$title['title'] = get_the_date( _x( 'W', 'weekly archives date format', 'default' ) );
-		}
+		$title['title'] = strip_tags( self::archive_title( $title['title' ] ) ); 
 		return $title;
 	}
 }
