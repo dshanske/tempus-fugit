@@ -6,7 +6,7 @@
  * Author: David Shanske
  * Author URI: https://david.shanske.com
  * Text Domain: tempus-fugit
- * Version: 1.0.3
+ * Version: 1.0.4
  */
 
 register_activation_hook( __FILE__, array( 'Tempus_Fugit_Plugin', 'activate' ) );
@@ -75,6 +75,8 @@ class Tempus_Fugit_Plugin {
 	}
 
 	public static function activate() {
+		require_once plugin_dir_path( __FILE__ ) . '/includes/rewrite-functions.php';
+		require_once plugin_dir_path( __FILE__ ) . '/includes/functions.php';
 		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-day-of-year.php';
 		new Tempus_Day_Of_Year();
 		flush_rewrite_rules();
