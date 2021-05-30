@@ -28,7 +28,7 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 			'number'    => 5,
 			'nonefound' => __( 'There were no posts on this week in previous years', 'tempus-fugit' ),
 		);
-		return wp_parse_args( $defaults, $instance );
+		return wp_parse_args( $instance, $defaults );
 	}
 
 	/**

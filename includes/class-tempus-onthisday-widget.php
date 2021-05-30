@@ -28,7 +28,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 			'number'    => 5,
 			'nonefound' => __( 'There were no posts on this day in previous years', 'tempus-fugit' ),
 		);
-		return wp_parse_args( $defaults, $instance );
+		return wp_parse_args( $instance, $defaults );
 	}
 
 	/**
@@ -154,8 +154,9 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 		<p>
 		<label for="<?php echo esc_attr( $this->get_field_id( 'number' ) ); ?>"><?php esc_html_e( 'Number of Posts:', 'tempus-fugit' ); ?></label>
 		<input type="number" min="1" step="1" name="<?php echo esc_attr( $this->get_field_name( 'number' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'number' ) ); ?>" value="<?php echo esc_attr( ifset( $instance['number'], 5 ) ); ?>" />
-		<label for="<?php echo esc_attr( $this->get_field_id( 'nonefound' ) ); ?>"><?php esc_html_e( 'Text if No Posts Found:', 'tempus-fugit' ); ?></label>
+		<p><label for="<?php echo esc_attr( $this->get_field_id( 'nonefound' ) ); ?>"><?php esc_html_e( 'Text if No Posts Found:', 'tempus-fugit' ); ?></label>
 		<textarea class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'nonefound' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'nonefound' ) ); ?>"><?php echo esc_html( $instance['nonefound'] ); ?></textarea>
+		</p>
 		<?php
 	}
 }
