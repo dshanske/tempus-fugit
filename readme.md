@@ -1,7 +1,7 @@
 # Tempus Fugit #
 **Contributors:** [dshanske](https://profiles.wordpress.org/dshanske)  
 **Tags:** time, archive, date, onthisday  
-**Stable tag:** 1.0.5  
+**Stable tag:** 1.0.6  
 **Requires at least:** 4.9.9  
 **Requires PHP:** 5.6  
 **Tested up to:** 5.8  
@@ -38,6 +38,9 @@ I realized I was doing a lot of these little enhancements in other places, burie
 So I split all of these time based enhancements into their own thing.
 
 ## Changelog ##
+
+### Version 1.0.6 ( 2021-07-24 ) ###
+* Oops
 
 ### Version 1.0.5 ( 2021-07-24 ) ###
 * Adds week archives and week permalinks

@@ -6,7 +6,7 @@
  * Author: David Shanske
  * Author URI: https://david.shanske.com
  * Text Domain: tempus-fugit
- * Version: 1.0.5
+ * Version: 1.0.6
  */
 
 register_activation_hook( __FILE__, array( 'Tempus_Fugit_Plugin', 'activate' ) );
