@@ -1,10 +1,10 @@
 # Tempus Fugit #
 **Contributors:** [dshanske](https://profiles.wordpress.org/dshanske)  
 **Tags:** time, archive, date, onthisday  
-**Stable tag:** 1.0.4  
+**Stable tag:** 1.0.5  
 **Requires at least:** 4.9.9  
 **Requires PHP:** 5.6  
-**Tested up to:** 5.7  
+**Tested up to:** 5.8  
 **License:** GPLv2 or later  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -19,6 +19,7 @@ This is a compilation of many tweaks to improve your site, including...
 3. Adds On This Day URLs and Widgets
 4. Adds This Week URLs and Widgets
 5. Adds /updated, /random, /oldest as top level archives
+6. Adds the %week% tag so you can have your permalinks include the year and adds the option for 2021/W21 to indicate Week 21 of the year.
 
 
 ## Installation ##
@@ -33,10 +34,13 @@ This plugin stores no private data.
 
 ### Why did you create this? ###
 
-I realized I was doing a lot of these little enhancements in other places, likeburied in my other plugins, where they were only tangentially related to what the plugin was for.
+I realized I was doing a lot of these little enhancements in other places, buried in my other plugins, where they were only tangentially related to what the plugin was for.
 So I split all of these time based enhancements into their own thing.
 
 ## Changelog ##
+
+### Version 1.0.5 ( 2021-07-24 ) ###
+* Adds week archives and week permalinks
 
 ### Version 1.0.4 ( 2021-04-04 ) ###
 * Add rewrite functions to activation hook to avoid load order issue
