@@ -8,6 +8,7 @@ class Tempus_Week_Of_Year {
 	public function __construct() {
 		add_action( 'plugins_loaded', array( __CLASS__, 'plugins_loaded' ) );
 		add_filter( 'available_permalink_structure_tags', array( __CLASS__, 'archive_permalink_structure_tags' ) );
+		add_filter( 'pre_get_posts', array( __CLASS__, 'week_of_year' ) );
 		add_filter( 'post_link', array( __CLASS__, 'post_link' ), 10, 2 );
 		add_filter( 'post_type_link', array( __CLASS__, 'post_link' ), 10, 2 );
 		add_filter( 'get_the_archive_title', array( __CLASS__, 'archive_title' ) );
@@ -59,6 +60,26 @@ class Tempus_Week_Of_Year {
 		}
 		$datetime = get_post_datetime( $post );
 		return str_replace( '%week%', zeroise( $datetime->format( 'W' ), 2 ), $permalink );
+	}
+
+	public static function week_of_year( $query ) {
+		// check if the user is requesting an admin page
+		if ( is_admin() ) {
+			return;
+		}
+
+		// If this is a date archive
+		if ( is_date() && ! empty( $query->get( 'week' ) ) && ! empty( $query->get( 'year' ) ) ) {
+			$query->set(
+				'date_query',
+				array(
+					'week' => $query->get( 'week' ),
+					'year'      => $query->get( 'year' ),
+				)
+			);
+			$query->set( 'year', '' );
+		}
+		return $query;
 	}
 
 	public static function is_week() {
