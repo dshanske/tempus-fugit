@@ -74,7 +74,7 @@ class Tempus_Week_Of_Year {
 				'date_query',
 				array(
 					'week' => $query->get( 'week' ),
-					'year'      => $query->get( 'year' ),
+					'year' => $query->get( 'year' ),
 				)
 			);
 			$query->set( 'year', '' );
