@@ -50,7 +50,6 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 		// phpcs:ignore
 		echo $args['before_widget'];
 		if ( $title ) {
-			)
 			echo $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', Tempus_On_This_Day::get_link(), $title ) . $args['after_title']; // phpcs:ignore
 		}
 		$transient = 'onthisday_widget' . $date->format( 'm-d' );
