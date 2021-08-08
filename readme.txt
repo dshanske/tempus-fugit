@@ -1,7 +1,7 @@
 === Tempus Fugit ===
 Contributors: dshanske
 Tags: time, archive, date, onthisday
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 Requires at least: 4.9.9
 Requires PHP: 5.6
 Tested up to: 5.8
@@ -38,6 +38,9 @@ I realized I was doing a lot of these little enhancements in other places, burie
 So I split all of these time based enhancements into their own thing.
 
 == Changelog ==
+
+= Version 1.0.8 ( 2021-08-08 ) =
+* Updated Widget Title Filter
 
 = Version 1.0.7 ( 2021-07-24 ) =
 * One final fix...should test better.

@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the Tempus Fugit plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Tempus Fugit 1.0.7\n"
+"Project-Id-Version: Tempus Fugit 1.0.8\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/tempus-fugit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2021-07-24T04:49:20+00:00\n"
+"POT-Creation-Date: 2021-08-08T04:51:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: tempus-fugit\n"
@@ -53,20 +53,20 @@ msgstr ""
 
 #. translators: %s: Human-readable time difference.
 #. translators: %s: Human-readable time difference.
-#: includes/class-tempus-onthisday-widget.php:78
-#: includes/class-tempus-thisweek-widget.php:77
+#: includes/class-tempus-onthisday-widget.php:82
+#: includes/class-tempus-thisweek-widget.php:81
 msgid "%s ago..."
 msgstr ""
 
-#: includes/class-tempus-onthisday-widget.php:151
+#: includes/class-tempus-onthisday-widget.php:155
 msgid "Title: "
 msgstr ""
 
-#: includes/class-tempus-onthisday-widget.php:155
+#: includes/class-tempus-onthisday-widget.php:159
 msgid "Number of Posts:"
 msgstr ""
 
-#: includes/class-tempus-onthisday-widget.php:157
+#: includes/class-tempus-onthisday-widget.php:161
 msgid "Text if No Posts Found:"
 msgstr ""
 
