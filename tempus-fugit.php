@@ -6,7 +6,7 @@
  * Author: David Shanske
  * Author URI: https://david.shanske.com
  * Text Domain: tempus-fugit
- * Version: 1.0.8
+ * Version: 1.0.9
  */
 
 register_activation_hook( __FILE__, array( 'Tempus_Fugit_Plugin', 'activate' ) );
@@ -106,5 +106,139 @@ class Tempus_Fugit_Plugin {
 			$query->set( 'order', 'ASC' );
 		}
 		return $query;
+	}
+
+	/**
+	 * Generic Filter Set of HTML paramaters for KSES
+	 *
+	 * @return return array Array of HTML elements.
+	 */
+	public static function kses_clean() {
+		return array(
+			'a'          => array(
+				'class' => array(),
+				'href'  => array(),
+				'name'  => array(),
+			),
+			'abbr'       => array(),
+			'b'          => array(),
+			'br'         => array(),
+			'code'       => array(),
+			'ins'        => array(),
+			'del'        => array(),
+			'em'         => array(),
+			'i'          => array(),
+			'q'          => array(),
+			'strike'     => array(),
+			'strong'     => array(),
+			'time'       => array(
+				'datetime' => array(),
+			),
+			'blockquote' => array(),
+			'pre'        => array(),
+			'p'          => array(
+				'class' => array(),
+				'id'    => array(),
+			),
+			'h1'         => array(
+				'class' => array(),
+			),
+			'h2'         => array(
+				'class' => array(),
+			),
+			'h3'         => array(
+				'class' => array(),
+			),
+			'h4'         => array(
+				'class' => array(),
+			),
+			'h5'         => array(
+				'class' => array(),
+			),
+			'h6'         => array(
+				'class' => array(),
+			),
+			'ul'         => array(
+				'class'       => array(),
+				'id'          => array(),
+				'title'       => array(),
+				'aria-label'  => array(),
+				'aria-hidden' => array(),
+
+			),
+			'li'         => array(
+				'class'       => array(),
+				'id'          => array(),
+				'class'       => array(),
+				'id'          => array(),
+				'title'       => array(),
+				'aria-label'  => array(),
+				'aria-hidden' => array(),
+			),
+			'ol'         => array(),
+			'span'       => array(
+				'class'       => array(),
+				'id'          => array(),
+				'title'       => array(),
+				'aria-label'  => array(),
+				'aria-hidden' => array(),
+				'data-prefix' => array(),
+				'data-icon'   => array(),
+			),
+			'section'    => array(
+				'class' => array(),
+				'id'    => array(),
+			),
+			'img'        => array(
+				'src'    => array(),
+				'class'  => array(),
+				'id'     => array(),
+				'alt'    => array(),
+				'title'  => array(),
+				'width'  => array(),
+				'height' => array(),
+				'srcset' => array(),
+			),
+			'figure'     => array(),
+			'figcaption' => array(),
+			'picture'    => array(
+				'srcset' => array(),
+				'type'   => array(),
+			),
+			'svg'        => array(
+				'version'     => array(),
+				'viewbox'     => array(),
+				'id'          => array(),
+				'x'           => array(),
+				'y'           => array(),
+				'xmlns'       => array(),
+				'xmlns:xlink' => array(),
+				'xml:space'   => array(),
+				'style'       => array(),
+				'aria-hidden' => array(),
+				'focusable'   => array(),
+				'class'       => array(),
+				'role'        => array(),
+				'height'      => array(),
+				'width'       => array(),
+				'fill'        => array(),
+
+			),
+			'div'        => array(
+				'class' => array(),
+				'id'    => array(),
+			),
+			'g'          => array(
+				'id'           => array(),
+				'stroke'       => array(),
+				'stroke-width' => array(),
+				'fill-rule'    => array(),
+				'fill'         => array(),
+			),
+			'path'       => array(
+				'd'    => array(),
+				'fill' => array(),
+			),
+		);
 	}
 }

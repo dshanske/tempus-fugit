@@ -47,10 +47,9 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 
 		// $date = new DateTime( '2020-01-01' ); // Uncomment for testing
 		$date = new DateTime( 'now', wp_timezone() );
-		// phpcs:ignore
-		echo $args['before_widget'];
+		echo $args['before_widget']; // phpcs:ignore
 		if ( $title ) {
-			echo $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', Tempus_On_This_Day::get_link(), $title ) . $args['after_title']; // phpcs:ignore
+			echo wp_kses( $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', Tempus_On_This_Day::get_link(), $title ) . $args['after_title'], Tempus_Fugit_Plugin::kses_clean() );
 		}
 		$transient = 'onthisday_widget' . $date->format( 'm-d' );
 		$posts     = get_transient( $transient );
@@ -58,6 +57,12 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 			$query = array(
 				'day'         => $date->format( 'd' ),
 				'monthnum'    => $date->format( 'm' ),
+				'date_query',
+				array(
+					array(
+						'before' => 'today',
+					),
+				),
 				'numberposts' => $instance['number'],
 				'fields'      => 'ids',
 			);
@@ -79,9 +84,9 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 			foreach ( $organize as $title => $year ) {
 				echo '<li>';
 				/* translators: %s: Human-readable time difference. */
-				printf( __( '%s ago...', 'tempus-fugit' ), $title ); // phpcs:ignore
+				echo esc_html( sprintf( __( '%s ago...', 'tempus-fugit' ), $title ) );
 				echo '<ul>';
-				echo implode( '', $year ); // phpcs:ignore
+				echo wp_kses( implode( '', $year ), Tempus_Fugit_Plugin::kses_clean() );
 				echo '</li></ul>';
 			}
 			echo '</ul>';

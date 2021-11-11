@@ -131,8 +131,9 @@ class Tempus_On_This_Day {
 			$query->set(
 				'date_query',
 				array(
-					'month' => $now->format( 'n' ),
-					'day'   => $now->format( 'j' ),
+					'month'  => $now->format( 'n' ),
+					'day'    => $now->format( 'j' ),
+					'before' => 'today',
 				)
 			);
 		}

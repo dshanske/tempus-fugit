@@ -133,6 +133,14 @@ class Tempus_This_Week {
 				'w',
 				$now->format( 'W' )
 			);
+			$query->set(
+				'date_query',
+				array(
+					array(
+						'before' => gmdate( 'o-\\WW' ),
+					),
+				)
+			);
 		}
 		return $query;
 	}
@@ -166,7 +174,7 @@ class Tempus_This_Week {
 	}
 
 	public static function title_parts( $title ) {
-		$title['title'] = strip_tags( self::archive_title( $title['title'] ) );
+		$title['title'] = wp_strip_all_tags( self::archive_title( $title['title'] ) );
 		return $title;
 	}
 }

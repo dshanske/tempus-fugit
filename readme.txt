@@ -1,10 +1,10 @@
 === Tempus Fugit ===
 Contributors: dshanske
 Tags: time, archive, date, onthisday
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 Requires at least: 4.9.9
 Requires PHP: 5.6
-Tested up to: 5.8
+Tested up to: 5.8.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,9 @@ I realized I was doing a lot of these little enhancements in other places, burie
 So I split all of these time based enhancements into their own thing.
 
 == Changelog ==
+
+= Version 1.0.9 ( 2021-11-11 ) =
+* No longer show this week or this day in those archives. Only show previous years.
 
 = Version 1.0.8 ( 2021-08-08 ) =
 * Updated Widget Title Filter

@@ -47,10 +47,9 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 
 		//$date = new DateTime( '2020-01-01' ); // Uncomment for testing
 		$date = new DateTime( 'now', wp_timezone() );
-		// phpcs:ignore
-		echo $args['before_widget'];
+		echo $args['before_widget']; // phpcs:ignore
 		if ( ! empty( $instance['title'] ) ) {
-			echo $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', Tempus_This_Week::get_link(), $title ) . $args['after_title']; // phpcs:ignore
+			echo wp_kses( $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', Tempus_This_Week::get_link(), $title ) . $args['after_title'], Tempus_Fugit_Plugin::kses_clean() );
 		}
 		$transient = 'thisweek_widget' . $date->format( 'w' );
 		$posts     = get_transient( $transient );
@@ -59,6 +58,12 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 				'w'           => $date->format( 'W' ),
 				'numberposts' => $instance['number'],
 				'fields'      => 'ids',
+				'date_query',
+				array(
+					array(
+						'before' => gmdate( 'o-\\WW' ),
+					),
+				),
 			);
 			$posts = get_posts( $query );
 		}
@@ -78,9 +83,9 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 			foreach ( $organize as $title => $year ) {
 				echo '<li>';
 				/* translators: %s: Human-readable time difference. */
-				printf( __( '%s ago...', 'tempus-fugit' ), $title ); // phpcs:ignore
+				echo esc_html( sprintf( __( '%s ago...', 'tempus-fugit' ), $title ) );
 				echo '<ul>';
-				echo implode( '', $year ); // phpcs:ignore
+				echo wp_kses( implode( '', $year ), Tempus_Fugit_Plugin::kses_clean() );
 				echo '</li></ul>';
 			}
 			echo '</ul>';
