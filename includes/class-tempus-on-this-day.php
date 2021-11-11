@@ -105,12 +105,30 @@ class Tempus_On_This_Day {
 				'index.php?onthisday=1&paged=$matches[1]&map=1',
 				'top'
 			);
-			// On This Day Today Map.
-			add_rewrite_rule(
-				$onthisday_slug . '/map/?$',
-				'index.php?onthisday=1&map=1',
-				'top'
-			);
+
+			if ( class_exists( 'Simple_Location_Plugin' ) ) {
+				// On This Day Today Map.
+				add_rewrite_rule(
+					$onthisday_slug . '/map/?$',
+					'index.php?onthisday=1&map=1',
+					'top'
+				);
+			}
+
+			if ( class_exists( 'Post_Kinds_Plugin' ) ) {
+				$kind_photos_slug = apply_filters( 'kind_photos_slug', 'photos' );
+				add_rewrite_rule(
+					$onthisday_slug . '/' . $kind_photos_slug . '/' . tempus_get_pagination_regex(),
+					'index.php?onthisday=1&kind_photos=1',
+					'top'
+				);
+				// Photos on This Day.
+				add_rewrite_rule(
+					$onthisday_slug . '/' . $kind_photos_slug . '/?$',
+					'index.php?onthisday=1&kind_photos=1',
+					'top'
+				);
+			}
 		}
 	}
 

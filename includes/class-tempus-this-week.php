@@ -111,6 +111,23 @@ class Tempus_This_Week {
 				'index.php?thisweek=1&map=1',
 				'top'
 			);
+
+			if ( class_exists( 'Post_Kinds_Plugin' ) ) {
+				$kind_photos_slug = apply_filters( 'kind_photos_slug', 'photos' );
+
+				add_rewrite_rule(
+					$thisweek_slug . '/' . $kind_photos_slug . '/' . tempus_get_pagination_regex(),
+					'index.php?thisweek=1&kind_photos=1',
+					'top'
+				);
+
+				// Photos on This Day.
+				add_rewrite_rule(
+					$thisweek_slug . '/' . $kind_photos_slug . '/?$',
+					'index.php?thisweek=1&kind_photos=1',
+					'top'
+				);
+			}
 		}
 
 	}
