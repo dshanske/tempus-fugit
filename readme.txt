@@ -41,6 +41,7 @@ So I split all of these time based enhancements into their own thing.
 
 = Version 1.0.9 ( 2021-11-11 ) =
 * No longer show this week or this day in those archives. Only show previous years.
+* Add in custom photos rewrite for On This Day and This Week features.
 
 = Version 1.0.8 ( 2021-08-08 ) =
 * Updated Widget Title Filter
