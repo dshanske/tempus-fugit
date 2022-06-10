@@ -134,7 +134,7 @@ class Tempus_On_This_Day {
 
 	public static function pre_get_posts( $query ) {
 		// check if the user is requesting an admin page
-		if ( is_admin() ) {
+		if ( is_admin() || ! $query->is_main_query() ) {
 			return;
 		}
 		$onthisday = get_query_var( 'onthisday' );
