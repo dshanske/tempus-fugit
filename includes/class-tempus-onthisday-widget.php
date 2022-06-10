@@ -60,7 +60,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 				'date_query',
 				array(
 					array(
-						'before' => 'today',
+						'before' => 'yesterday',
 					),
 				),
 				'numberposts' => $instance['number'],

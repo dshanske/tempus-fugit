@@ -154,7 +154,7 @@ class Tempus_This_Week {
 				'date_query',
 				array(
 					array(
-						'before' => gmdate( 'o-\\WW' ),
+						'before' => '-6 days',
 					),
 				)
 			);

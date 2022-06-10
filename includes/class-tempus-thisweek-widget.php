@@ -61,7 +61,7 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 				'date_query',
 				array(
 					array(
-						'before' => gmdate( 'o-\\WW' ),
+						'before' => '-6 days',
 					),
 				),
 			);
