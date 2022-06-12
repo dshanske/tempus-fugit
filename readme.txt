@@ -1,10 +1,10 @@
 === Tempus Fugit ===
 Contributors: dshanske
 Tags: time, archive, date, onthisday
-Stable tag: 1.0.9
+Stable tag: 1.1.0
 Requires at least: 4.9.9
 Requires PHP: 5.6
-Tested up to: 5.8.2
+Tested up to: 6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,8 +16,8 @@ This is a compilation of many tweaks to improve your site, including...
 
 1. Date Based Archives will show up from oldest to newest, instead of newest first. When you are scrolling through memory lane, you want to do it in order.
 2. Adds the %dayofyear% tag so you can have your permalinks as /%year%/%dayofyear% instead of month and day.
-3. Adds On This Day URLs and Widgets
-4. Adds This Week URLs and Widgets
+3. Adds On This Day URLs and Widgets /onthisday
+4. Adds This Week URLs and Widgets /thisweek
 5. Adds /updated, /random, /oldest as top level archives
 6. Adds the %week% tag so you can have your permalinks include the year and adds the option for 2021/W21 to indicate Week 21 of the year.
 
@@ -38,6 +38,11 @@ I realized I was doing a lot of these little enhancements in other places, burie
 So I split all of these time based enhancements into their own thing.
 
 == Changelog ==
+
+= Version 1.1.0 ( 2022-06-12 ) =
+* Fix issue where queries for special pages hid dynamic menus
+* Adjust filter for this week to exclude previous 6 days, instead of calendar week due to inaccurate calculation
+
 
 = Version 1.0.9 ( 2021-11-11 ) =
 * No longer show this week or this day in those archives. Only show previous years.
