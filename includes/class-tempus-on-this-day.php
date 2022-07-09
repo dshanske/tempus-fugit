@@ -153,7 +153,7 @@ class Tempus_On_This_Day {
 						'month'  => $now->format( 'n' ),
 						'day'    => $now->format( 'j' ),
 						'before' => 'yesterday',
-					)
+					),
 				)
 			);
 		}
