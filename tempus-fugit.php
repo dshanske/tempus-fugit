@@ -6,7 +6,7 @@
  * Author: David Shanske
  * Author URI: https://david.shanske.com
  * Text Domain: tempus-fugit
- * Version: 1.1.0
+ * Version: 1.1.1
  */
 
 register_activation_hook( __FILE__, array( 'Tempus_Fugit_Plugin', 'activate' ) );
@@ -105,6 +105,12 @@ class Tempus_Fugit_Plugin {
 		if ( is_date() && ! empty( $query->get( 'year' ) ) ) {
 			$query->set( 'order', 'ASC' );
 		}
+
+		// If the default is a series then it should be in ascending order.
+		if ( is_tax( 'series' ) ) {
+			$query->set( 'order', 'ASC' );
+		}
+
 		return $query;
 	}
 
