@@ -69,7 +69,7 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 		set_transient( $transient, $posts, HOUR_IN_SECONDS );
 		$organize = array();
 		foreach ( $posts as $post ) {
-			$diff = human_time_diff( get_post_timestamp( $post ) );
+			$diff = sprintf( '<a href="%1$s">%2$s</a>', tempus_get_post_week_link( $post ), human_time_diff( get_post_timestamp( $post ) ) );
 			if ( ! array_key_exists( $diff, $organize ) ) {
 				$organize[ $diff ] = array();
 			}
@@ -82,7 +82,7 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 			foreach ( $organize as $title => $year ) {
 				echo '<li>';
 				/* translators: %s: Human-readable time difference. */
-				echo esc_html( sprintf( __( '%s ago...', 'tempus-fugit' ), $title ) );
+				printf( esc_html__( '%s ago...', 'tempus-fugit' ), wp_kses( $title, Tempus_Fugit_Plugin::kses_clean() ) );
 				echo '<ul>';
 				echo wp_kses( implode( '', $year ), Tempus_Fugit_Plugin::kses_clean() );
 				echo '</li></ul>';

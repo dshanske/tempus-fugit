@@ -83,7 +83,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 			foreach ( $organize as $title => $year ) {
 				echo '<li>';
 				/* translators: %s: Human-readable time difference. */
-				echo esc_html( sprintf( __( '%s ago...', 'tempus-fugit' ), $title ) );
+				printf( esc_html( __( '%s ago...', 'tempus-fugit' ) ), wp_kses( $title, Tempus_Fugit_Plugin::kses_clean() ) );
 				echo '<ul>';
 				echo wp_kses( implode( '', $year ), Tempus_Fugit_Plugin::kses_clean() );
 				echo '</li></ul>';

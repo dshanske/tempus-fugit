@@ -23,6 +23,24 @@ function tempus_get_post_day_link( $post = null ) {
 	return $daylink;
 }
 
+function tempus_get_post_week_link( $post = null ) {
+	$post     = get_post( $post ); // Allows support of current post and post ID.
+	$weeklink = '%year%/W%week%';
+	$datetime = get_post_datetime( $post );
+	$year     = $datetime->format( 'Y' );
+	$week     = $datetime->format( 'W' );
+	$month    = $datetime->format( 'm' );
+	$day      = $datetime->format( 'd' );
+	if ( ! empty( $weeklink ) ) {
+		$weeklink = str_replace( '%year%', $year, $weeklink );
+		$weeklink = str_replace( '%week%', zeroise( (int) $week, 2 ), $weeklink );
+		$weeklink = home_url( user_trailingslashit( $weeklink, 'week' ) );
+	} else {
+		$weeklink = home_url( '?m=' . $year . zeroise( $month, 2 ) . zeroise( $day, 2 ) );
+	}
+	return $weeklink;
+}
+
 /*
  * Returns the date of the current archive
  */
