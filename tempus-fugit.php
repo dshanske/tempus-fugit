@@ -28,7 +28,7 @@ class Tempus_Fugit_Plugin {
 			// Register Widgets
 			add_action(
 				'widgets_init',
-				function() {
+				function () {
 					register_widget( 'Tempus_OnThisDay_Widget' );
 					register_widget( 'Tempus_ThisWeek_Widget' );
 				}
@@ -173,8 +173,6 @@ class Tempus_Fugit_Plugin {
 
 			),
 			'li'         => array(
-				'class'       => array(),
-				'id'          => array(),
 				'class'       => array(),
 				'id'          => array(),
 				'title'       => array(),

@@ -46,7 +46,6 @@ class Tempus_Order_By {
 			'index.php?sort=$matches[1]',
 			'top'
 		);
-
 	}
 
 	public static function order_by( $query ) {
@@ -102,5 +101,3 @@ class Tempus_Order_By {
 		return $title;
 	}
 }
-
-

@@ -13,7 +13,6 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 				'description' => __( 'A widget that allows you to display a list of posts from this week in history', 'tempus-fugit' ),
 			)
 		);
-
 	} // end constructor
 
 	/**

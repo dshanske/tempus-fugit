@@ -36,9 +36,9 @@ class Tempus_On_This_Day {
 				$url = get_home_url( $blog_id, 'onthisday' );
 			}
 		} else {
-				 $url = trailingslashit( get_home_url( $blog_id, '' ) );
-				 // nginx only allows HTTP/1.0 methods when redirecting from / to /index.php.
-				 // To work around this, we manually add index.php to the URL, avoiding the redirect.
+				$url = trailingslashit( get_home_url( $blog_id, '' ) );
+				// nginx only allows HTTP/1.0 methods when redirecting from / to /index.php.
+				// To work around this, we manually add index.php to the URL, avoiding the redirect.
 			if ( 'index.php' !== substr( $url, 9 ) ) {
 				$url .= 'index.php';
 			}
@@ -195,5 +195,3 @@ class Tempus_On_This_Day {
 		return $title;
 	}
 }
-
-

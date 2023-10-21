@@ -100,7 +100,7 @@ class Tempus_Week_Of_Year {
 			$prefix = apply_filters( 'get_the_archive_title_prefix', $prefix );
 			if ( $prefix ) {
 				$title = sprintf(
-				 /* translators: 1: Title prefix. 2: Title. */
+				/* translators: 1: Title prefix. 2: Title. */
 					_x( '%1$s %2$s', 'archive title', 'default' ),
 					$prefix,
 					'<span>' . $title . '</span>'
@@ -117,5 +117,3 @@ class Tempus_Week_Of_Year {
 		return $title;
 	}
 }
-
-

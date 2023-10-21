@@ -14,7 +14,7 @@ function tempus_get_feed_regex( $base = true ) {
 	// Build a regex to match the feed section of URLs, something like (feed|atom|rss|rss2)/?
 	$feedregex2 = '';
 	foreach ( (array) $wp_rewrite->feeds as $feed_name ) {
-			 $feedregex2 .= $feed_name . '|';
+			$feedregex2 .= $feed_name . '|';
 	}
 
 	$feedregex2 = '(' . trim( $feedregex2, '|' ) . ')/?$';
@@ -37,4 +37,3 @@ function tempus_generate_permastruct( $elements ) {
 		$elements[] = '?$';
 		return implode( '/', $elements );
 }
-

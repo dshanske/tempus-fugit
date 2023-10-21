@@ -42,5 +42,3 @@ function tempus_get_archive_date() {
 	}
 	return array_filter( $return );
 }
-
-

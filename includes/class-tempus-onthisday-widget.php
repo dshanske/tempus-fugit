@@ -13,7 +13,6 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 				'description' => __( 'A widget that allows you to display a list of posts from this day in history', 'tempus-fugit' ),
 			)
 		);
-
 	} // end constructor
 
 	/**
