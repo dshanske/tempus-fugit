@@ -60,7 +60,7 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 				'date_query',
 				array(
 					array(
-						'before' => '-6 days',
+						'before' => 'first day in january this year',
 					),
 				),
 			);

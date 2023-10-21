@@ -153,7 +153,7 @@ class Tempus_This_Week {
 				'date_query',
 				array(
 					array(
-						'before' => '-6 days',
+						'before' => 'first day of january this year',
 					),
 				)
 			);
