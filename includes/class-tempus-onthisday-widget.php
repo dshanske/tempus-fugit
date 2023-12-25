@@ -127,7 +127,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 			$title = get_the_date( 'Y ' . get_option( 'time_format' ), $post );
 		}
 		$title = apply_filters( 'tempus_widget_post_title', $title, $post );
-		return trim( sprintf( '<a href="%1$s">%2$s</a>', get_the_permalink( $post ), $title ) );
+		return trim( $title );
 	}
 
 	/**

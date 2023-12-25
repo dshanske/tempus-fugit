@@ -1,10 +1,10 @@
 # Tempus Fugit #
 **Contributors:** [dshanske](https://profiles.wordpress.org/dshanske)  
 **Tags:** time, archive, date, onthisday  
-**Stable tag:** 1.1.2  
+**Stable tag:** 1.1.3  
 **Requires at least:** 4.9.9  
 **Requires PHP:** 7.0  
-**Tested up to:** 6.3  
+**Tested up to:** 6.4  
 **License:** GPLv2 or later  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -38,6 +38,9 @@ I realized I was doing a lot of these little enhancements in other places, burie
 So I split all of these time based enhancements into their own thing.
 
 ## Changelog ##
+
+### Version 1.1.3 ( 2023-12-25 ) ###
+* Remove extra output link due duplicate code
 
 ### Version 1.1.2 ( 2023-10-21 ) ###
 * Fix issue with HTML escaping on widgets
