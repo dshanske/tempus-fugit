@@ -1,10 +1,10 @@
 # Tempus Fugit #
 **Contributors:** [dshanske](https://profiles.wordpress.org/dshanske)  
 **Tags:** time, archive, date, onthisday  
-**Stable tag:** 1.1.3  
+**Stable tag:** 1.2.0  
 **Requires at least:** 4.9.9  
 **Requires PHP:** 7.0  
-**Tested up to:** 6.4  
+**Tested up to:** 6.5  
 **License:** GPLv2 or later  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -38,6 +38,9 @@ I realized I was doing a lot of these little enhancements in other places, burie
 So I split all of these time based enhancements into their own thing.
 
 ## Changelog ##
+
+### Version 1.2.0 ( 2024-05-12 ) ###
+* Add functions for previous/next date archive that can be used in a theme
 
 ### Version 1.1.3 ( 2023-12-25 ) ###
 * Remove extra output link due duplicate code

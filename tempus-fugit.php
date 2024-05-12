@@ -6,7 +6,7 @@
  * Author: David Shanske
  * Author URI: https://david.shanske.com
  * Text Domain: tempus-fugit
- * Version: 1.1.3
+ * Version: 1.2.0
  */
 
 register_activation_hook( __FILE__, array( 'Tempus_Fugit_Plugin', 'activate' ) );
@@ -93,7 +93,6 @@ class Tempus_Fugit_Plugin {
 	public static function deactivate() {
 		flush_rewrite_rules();
 	}
-
 
 	public static function date_sort( $query ) {
 		// check if the user is requesting an admin page
