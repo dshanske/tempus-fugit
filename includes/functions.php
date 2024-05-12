@@ -41,10 +41,12 @@ function tempus_get_post_week_link( $post = null ) {
 	return $weeklink;
 }
 
+
+
 /*
  * Returns the date of the current archive
  */
-function tempus_get_archive_date() {
+function tempus_get_archive_date_query() {
 	if ( ! is_date() ) {
 		return false;
 	}
@@ -59,4 +61,35 @@ function tempus_get_archive_date() {
 		$return     = array_merge( $return, $date_query );
 	}
 	return array_filter( $return );
+}
+
+function tempus_get_archive_datetime() {
+	if ( ! is_date() ) {
+		return false;
+	}
+	$date = tempus_get_archive_date_query();
+	$d    = '';
+	if ( array_key_exists( 'year', $date ) ) {
+		$d .= $date['year'];
+	}
+	if ( array_key_exists( 'monthnum', $date ) ) {
+		if ( ! empty( $d ) ) {
+			$d .= '-';
+		}
+		$d .= $date['monthnum'];
+	}
+	if ( array_key_exists( 'day', $date ) ) {
+		if ( ! empty( $d ) ) {
+			$d .= '-';
+		}
+		$d .= $date['day'];
+	}
+	if ( is_day() ) {
+		return date_create_from_format( 'Y-m-d', $d, wp_timezone() );
+	} elseif ( is_month() ) {
+		return date_create_from_format( 'Y-m', $d, wp_timezone() );
+	} elseif ( is_year() ) {
+		return date_create_from_format( 'Y', $d, wp_timezone() );
+	}
+	return false;
 }
