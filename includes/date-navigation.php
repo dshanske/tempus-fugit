@@ -8,6 +8,9 @@ function tempus_get_adjacent_date_link( $previous = true ) {
 		return false;
 	}
 	$datetime = tempus_get_archive_datetime();
+	if ( ! $datetime ) {
+		return false;
+	}
 	if ( is_day() ) {
 		$interval = 'P1D';
 	} elseif ( is_month() ) {
