@@ -6,6 +6,7 @@
  * Author: David Shanske
  * Author URI: https://david.shanske.com
  * Text Domain: tempus-fugit
+ * License: GPLv2 or later
  * Version: 1.2.0
  */
 
