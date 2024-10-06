@@ -11,9 +11,14 @@
 	<config name="minimum_supported_wp_version" value="4.9"/>
 	<rule ref="WordPress.WP.DeprecatedFunctions" />
 
-	<rule ref="WordPress-Core">
+	<rule ref="WordPress">
 		<exclude name="WordPress.Security.ValidatedSanitizedInput" />
 		<exclude name="WordPress.Security.NonceVerification" />
+		<exclude name="WordPress.Security.ValidatedSanitizedInput" />
+		<exclude name="WordPress.Security.NonceVerification" />
+		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter"/>
+		<exclude name="Squiz.Commenting"/>
+		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames"/>
 	</rule>
 	<rule ref="WordPress.Files.FileName">
 	<properties>
@@ -21,6 +26,7 @@
 	</properties>
 	</rule>
 
+	<rule ref="VariableAnalysis"/>
 	<rule ref="WordPress-Extra" />
         <rule ref="WordPress.WP.I18n"/>
 	<config name="text_domain" value="tempus-fugit,default"/>
