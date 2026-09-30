@@ -25,6 +25,8 @@ class Tempus_On_This_Day {
 	public function __construct() {
 		add_action( 'plugins_loaded', array( __CLASS__, 'plugins_loaded' ) );
 		add_filter( 'pre_get_posts', array( __CLASS__, 'pre_get_posts' ) );
+		// Late, so taxonomies registered by other plugins on init are included.
+		add_action( 'init', array( __CLASS__, 'taxonomy_rewrite_rules' ), 99 );
 		add_filter( 'get_the_archive_title', array( __CLASS__, 'archive_title' ) );
 		add_filter( 'document_title_parts', array( __CLASS__, 'title_parts' ) );
 		add_filter( 'query_vars', array( __CLASS__, 'query_vars' ) );
@@ -200,6 +202,56 @@ class Tempus_On_This_Day {
 	}
 
 	/**
+	 * Returns the URL of today's On This Day archive for a category, tag, or other term.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param WP_Term|int|string $term     Term object, ID, or slug.
+	 * @param string             $taxonomy Optional. Taxonomy name. Required when `$term` is a slug.
+	 * @return string Archive URL, or an empty string if the term doesn't exist.
+	 */
+	public static function get_term_archive_link( $term, $taxonomy = '' ) {
+		global $wp_rewrite;
+		$term = ( is_string( $term ) && ! is_numeric( $term ) ) ? get_term_by( 'slug', $term, $taxonomy ) : get_term( $term, $taxonomy );
+		if ( ! $term instanceof WP_Term ) {
+			return '';
+		}
+		// The term exists, so this is a URL rather than an error.
+		$link = get_term_link( $term );
+		if ( $wp_rewrite->get_extra_permastruct( $term->taxonomy ) ) {
+			return user_trailingslashit( trailingslashit( $link ) . self::get_slug() );
+		}
+		return add_query_arg( 'onthisday', 1, $link );
+	}
+
+	/**
+	 * Registers On This Day rules for the term archives of every public taxonomy.
+	 *
+	 * Adds `/tag/foo/onthisday/`, `/category/news/onthisday/03/15/`, and the like, with feeds
+	 * and pagination. Uses each taxonomy's own permalink base.
+	 *
+	 * Hooked to `init` at priority 99.
+	 *
+	 * @since 1.2.1
+	 */
+	public static function taxonomy_rewrite_rules() {
+		$slug = self::get_slug();
+		foreach ( tempus_get_taxonomy_archive_regexes() as $base => $query_var ) {
+			$query = 'index.php?' . $query_var . '=$matches[1]&onthisday=1';
+			add_rewrite_rule(
+				sprintf( '%1$s/%2$s/([0-9]{2})/([0-9]{2})/%3$s', $base, $slug, tempus_get_pagination_regex() ),
+				$query . '&monthnum=$matches[2]&day=$matches[3]&paged=$matches[4]',
+				'top'
+			);
+			add_rewrite_rule( $base . '/' . $slug . '/([0-9]{2})/([0-9]{2})/?$', $query . '&monthnum=$matches[2]&day=$matches[3]', 'top' );
+			add_rewrite_rule( $base . '/' . $slug . '/feed/?$', $query . '&feed=' . get_default_feed(), 'top' );
+			add_rewrite_rule( $base . '/' . $slug . '/' . tempus_get_feed_regex(), $query . '&feed=$matches[2]', 'top' );
+			add_rewrite_rule( $base . '/' . $slug . '/' . tempus_get_pagination_regex(), $query . '&paged=$matches[2]', 'top' );
+			add_rewrite_rule( $base . '/' . $slug . '/?$', $query, 'top' );
+		}
+	}
+
+	/**
 	 * Turns an `/onthisday` request into a query for today's month and day in previous years.
 	 *
 	 * Hooked to `pre_get_posts`. Only affects the main query on the front end.
@@ -251,6 +303,8 @@ class Tempus_On_This_Day {
 	/**
 	 * Sets the archive title for On This Day archives, such as "On This Day: March 15".
 	 *
+	 * On a term archive the term is included, such as "On This Day in Travel: March 15".
+	 *
 	 * Hooked to `get_the_archive_title`.
 	 *
 	 * @since 1.0.0
@@ -260,8 +314,14 @@ class Tempus_On_This_Day {
 	 */
 	public static function archive_title( $title ) {
 		if ( self::is_onthisday() ) {
-			$title  = get_the_date( _x( 'F j', 'daily archives date format', 'tempus-fugit' ) );
-			$prefix = _x( 'On This Day:', 'date archive title prefix', 'tempus-fugit' );
+			$title = get_the_date( _x( 'F j', 'daily archives date format', 'tempus-fugit' ) );
+			$term  = tempus_get_queried_term_name();
+			if ( $term ) {
+				/* translators: %s: Category, tag, or other term name. */
+				$prefix = sprintf( _x( 'On This Day in %s:', 'date archive title prefix', 'tempus-fugit' ), $term );
+			} else {
+				$prefix = _x( 'On This Day:', 'date archive title prefix', 'tempus-fugit' );
+			}
 			/** This filter is documented in wp-includes/general-template.php */
 			$prefix = apply_filters( 'get_the_archive_title_prefix', $prefix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter.
 			if ( $prefix ) {
@@ -279,6 +339,8 @@ class Tempus_On_This_Day {
 	/**
 	 * Sets the document title for On This Day archives to the date.
 	 *
+	 * On a term archive, the archive title is used instead, so the term is included.
+	 *
 	 * Hooked to `document_title_parts`.
 	 *
 	 * @since 1.0.0
@@ -288,7 +350,7 @@ class Tempus_On_This_Day {
 	 */
 	public static function title_parts( $title ) {
 		if ( self::is_onthisday() ) {
-			$title['title'] = get_the_date();
+			$title['title'] = tempus_get_queried_term_name() ? wp_strip_all_tags( self::archive_title( '' ) ) : get_the_date();
 		}
 		return $title;
 	}

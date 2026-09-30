@@ -80,3 +80,32 @@ function tempus_generate_permastruct( $elements ) {
 		$elements[] = '?$';
 		return implode( '/', $elements );
 }
+
+/**
+ * Returns a regex for the term archive of each public taxonomy, with its query var.
+ *
+ * Built from each taxonomy's permalink structure, so custom category and tag bases and
+ * custom taxonomies are included. The regex has one capture group, the term.
+ *
+ * @since 1.2.1
+ *
+ * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
+ *
+ * @return string[] Query vars keyed by term archive regex, such as `tag/([^/]+)` => 'tag'.
+ *                  Empty when pretty permalinks are off.
+ */
+function tempus_get_taxonomy_archive_regexes() {
+	global $wp_rewrite;
+	$regexes = array();
+	foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $taxonomy ) {
+		$struct = $wp_rewrite->get_extra_permastruct( $taxonomy->name );
+		if ( ! $struct || ! $taxonomy->query_var ) {
+			continue;
+		}
+		// Match terms the same way core does for this taxonomy.
+		$term_regex = ( $taxonomy->hierarchical && ! empty( $taxonomy->rewrite['hierarchical'] ) ) ? '(.+?)' : '([^/]+)';
+
+		$regexes[ ltrim( str_replace( '%' . $taxonomy->name . '%', $term_regex, $struct ), '/' ) ] = $taxonomy->query_var;
+	}
+	return $regexes;
+}
