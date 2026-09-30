@@ -1,99 +1,230 @@
-# Copyright (C) 2023 David Shanske
-# This file is distributed under the same license as the Tempus Fugit plugin.
+# Copyright (C) 2026 David Shanske
+# This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Tempus Fugit 1.1.2\n"
+"Project-Id-Version: Tempus Fugit 1.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/tempus-fugit\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-10-21T03:54:41+00:00\n"
+"POT-Creation-Date: 2026-09-30T04:58:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.8.1\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: tempus-fugit\n"
 
 #. Plugin Name of the plugin
+#: tempus-fugit.php:3
 msgid "Tempus Fugit"
 msgstr ""
 
 #. Plugin URI of the plugin
+#: tempus-fugit.php:4
 msgid "https://github.com/dshanske/tempus-fugit"
 msgstr ""
 
 #. Description of the plugin
+#: tempus-fugit.php:5
 msgid "Enhance your Time Based Experiences in WordPress"
 msgstr ""
 
 #. Author of the plugin
+#: tempus-fugit.php:6
 msgid "David Shanske"
 msgstr ""
 
 #. Author URI of the plugin
+#: tempus-fugit.php:7
 msgid "https://david.shanske.com"
 msgstr ""
 
-#. translators: The numerical day of tyhe year.
-#: includes/class-tempus-day-of-year.php:73
+#. translators: %s: Permalink structure tag.
+#: includes/class-tempus-day-of-year.php:137
+#, php-format
 msgid "%s (Day of the year, for example 366.)"
 msgstr ""
 
-#: includes/class-tempus-onthisday-widget.php:10
+#: includes/class-tempus-day-of-year.php:184
+msgctxt "daily archives date format"
+msgid "F j, Y"
+msgstr ""
+
+#: includes/class-tempus-day-of-year.php:185
+msgctxt "date archive title prefix"
+msgid "Day:"
+msgstr ""
+
+#. translators: 1: Title prefix. 2: Title.
+#: includes/class-tempus-day-of-year.php:191
+#: includes/class-tempus-on-this-day.php:335
+#: includes/class-tempus-this-week.php:379
+#: includes/class-tempus-week-of-year.php:239
+#, php-format
+msgctxt "archive title"
+msgid "%1$s %2$s"
+msgstr ""
+
+#: includes/class-tempus-minor-update.php:69
+msgid "Minor update (keep the last updated date)"
+msgstr ""
+
+#: includes/class-tempus-on-this-day.php:322
+msgctxt "daily archives date format"
+msgid "F j"
+msgstr ""
+
+#. translators: %s: Category, tag, or other term name.
+#: includes/class-tempus-on-this-day.php:326
+#, php-format
+msgctxt "date archive title prefix"
+msgid "On This Day in %s:"
+msgstr ""
+
+#: includes/class-tempus-on-this-day.php:328
+msgctxt "date archive title prefix"
+msgid "On This Day:"
+msgstr ""
+
+#: includes/class-tempus-onthisday-widget.php:34
 msgid "On This Day Widget"
 msgstr ""
 
-#: includes/class-tempus-onthisday-widget.php:13
+#: includes/class-tempus-onthisday-widget.php:37
 msgid "A widget that allows you to display a list of posts from this day in history"
 msgstr ""
 
-#: includes/class-tempus-onthisday-widget.php:28
+#: includes/class-tempus-onthisday-widget.php:55
 msgid "There were no posts on this day in previous years"
 msgstr ""
 
 #. translators: %s: Human-readable time difference.
-#: includes/class-tempus-onthisday-widget.php:86
-#: includes/class-tempus-thisweek-widget.php:85
+#: includes/class-tempus-onthisday-widget.php:246
+#, php-format
 msgid "%s ago..."
 msgstr ""
 
-#: includes/class-tempus-onthisday-widget.php:159
+#: includes/class-tempus-onthisday-widget.php:400
 msgid "Title: "
 msgstr ""
 
-#: includes/class-tempus-onthisday-widget.php:163
+#: includes/class-tempus-onthisday-widget.php:404
 msgid "Number of Posts:"
 msgstr ""
 
-#: includes/class-tempus-onthisday-widget.php:165
+#: includes/class-tempus-onthisday-widget.php:406
 msgid "Text if No Posts Found:"
 msgstr ""
 
-#: includes/class-tempus-order-by.php:87
+#: includes/class-tempus-onthisday-widget.php:409
+msgid "Limit to:"
+msgstr ""
+
+#: includes/class-tempus-onthisday-widget.php:411
+msgid "All posts"
+msgstr ""
+
+#: includes/class-tempus-onthisday-widget.php:416
+msgid "Term (slug):"
+msgstr ""
+
+#: includes/class-tempus-order-by.php:177
 msgid "Last Updated"
 msgstr ""
 
-#: includes/class-tempus-order-by.php:89
+#: includes/class-tempus-order-by.php:179
 msgid "Random Posts"
 msgstr ""
 
-#: includes/class-tempus-order-by.php:91
+#: includes/class-tempus-order-by.php:181
 msgid "Oldest Posts"
 msgstr ""
 
-#: includes/class-tempus-thisweek-widget.php:10
+#: includes/class-tempus-random-widget.php:29
+msgid "Random Memory Widget"
+msgstr ""
+
+#: includes/class-tempus-random-widget.php:32
+msgid "A widget that shows a random post from your archives"
+msgstr ""
+
+#: includes/class-tempus-random-widget.php:46
+msgid "All time"
+msgstr ""
+
+#: includes/class-tempus-random-widget.php:47
+msgid "This day in previous years"
+msgstr ""
+
+#: includes/class-tempus-random-widget.php:48
+msgid "This week in previous years"
+msgstr ""
+
+#: includes/class-tempus-random-widget.php:65
+msgid "There are no posts to remember yet"
+msgstr ""
+
+#: includes/class-tempus-random-widget.php:256
+msgid "Pick from:"
+msgstr ""
+
+#: includes/class-tempus-this-week.php:366
+msgctxt "weekly archives date format"
+msgid "W"
+msgstr ""
+
+#. translators: %s: Category, tag, or other term name.
+#: includes/class-tempus-this-week.php:370
+#, php-format
+msgctxt "date archive title prefix"
+msgid "Week in %s:"
+msgstr ""
+
+#: includes/class-tempus-this-week.php:372
+msgctxt "date archive title prefix"
+msgid "Week:"
+msgstr ""
+
+#: includes/class-tempus-thisweek-widget.php:25
 msgid "This Week Widget"
 msgstr ""
 
-#: includes/class-tempus-thisweek-widget.php:13
+#: includes/class-tempus-thisweek-widget.php:28
 msgid "A widget that allows you to display a list of posts from this week in history"
 msgstr ""
 
-#: includes/class-tempus-thisweek-widget.php:28
+#: includes/class-tempus-thisweek-widget.php:46
 msgid "There were no posts on this week in previous years"
 msgstr ""
 
-#. translators: The numerical week of the year.
-#: includes/class-tempus-week-of-year.php:53
+#. translators: %s: Permalink structure tag.
+#: includes/class-tempus-week-of-year.php:104
+#, php-format
 msgid "%s (2 Digit Week.)"
+msgstr ""
+
+#: includes/class-tempus-week-of-year.php:232
+msgctxt "weekly archives date format"
+msgid "W, o"
+msgstr ""
+
+#: includes/class-tempus-week-of-year.php:233
+msgctxt "date archive title prefix"
+msgid "Week"
+msgstr ""
+
+#. translators: 1: ISO-8601 week number. 2: ISO-8601 year.
+#: includes/date-navigation.php:62
+#, php-format
+msgid "Week %1$s, %2$s"
+msgstr ""
+
+#: includes/date-navigation.php:77
+msgctxt "monthly archives date format"
+msgid "F Y"
+msgstr ""
+
+#. translators: Hidden accessibility text.
+#: includes/date-navigation.php:118
+msgid "Date navigation"
 msgstr ""
