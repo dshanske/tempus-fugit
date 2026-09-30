@@ -11,51 +11,78 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Returns a link to the previous or next day, month, or year archive.
+ * Returns a link to the previous or next date archive that has posts.
  *
- * The period matches the archive being viewed. No link is returned for a date in the future.
+ * Works on day, month, year, week, and day-of-year archives. The link goes to the archive of the
+ * same type that contains the nearest earlier (or later) published post, so empty periods are
+ * skipped and there is no link past the newest post.
  *
  * @since 1.2.0
+ * @since 1.2.1 Skips periods without posts, supports week and day-of-year archives, and added `$text`.
  *
- * @param bool $previous Optional. Whether to link to the previous period (true) or the next (false).
- *                       Default true.
- * @return string|false Anchor tag HTML, an empty string if the adjacent period is in the future,
- *                      or false if this is not a day, month, or year archive.
+ * @param bool   $previous Optional. Whether to link to the previous archive (true) or the next (false).
+ *                         Default true.
+ * @param string $text     Optional. Link text. `%title` is replaced with the archive's date, such as
+ *                         "June 14, 2020" or "Week 11, 2024". Default '%title'.
+ * @return string|false Anchor tag HTML, an empty string if there are no posts in that direction,
+ *                      or false if this is not a day, month, year, week, or day-of-year archive.
  */
-function tempus_get_adjacent_date_link( $previous = true ) {
-	if ( ! is_date() ) {
+function tempus_get_adjacent_date_link( $previous = true, $text = '%title' ) {
+	$period = tempus_get_archive_period();
+	if ( ! $period ) {
 		return false;
 	}
-	$datetime = tempus_get_archive_datetime();
-	if ( ! $datetime ) {
-		return false;
+	// Posts before the start of this period, or after its end.
+	$bound = array( 'inclusive' => false );
+	if ( $previous ) {
+		$bound['before'] = $period['start']->format( 'Y-m-d H:i:s' );
+	} else {
+		$bound['after'] = $period['end']->format( 'Y-m-d H:i:s' );
 	}
-	if ( is_day() ) {
-		$interval = 'P1D';
-	} elseif ( is_month() ) {
-		$interval = 'P1M';
-	} elseif ( is_year() ) {
-		$interval = 'P1Y';
-	}
-	$linktime = $previous ? $datetime->sub( new DateInterval( $interval ) ) : $datetime->add( new DateInterval( $interval ) );
-	$current  = new DateTime();
-	if ( $current < $linktime ) {
+	$posts = get_posts(
+		array(
+			'numberposts' => 1,
+			'fields'      => 'ids',
+			'orderby'     => 'date',
+			'order'       => $previous ? 'DESC' : 'ASC',
+			'date_query'  => array( $bound ),
+		)
+	);
+	if ( ! $posts ) {
 		return '';
 	}
 
-	if ( is_day() ) {
-		$link   = get_day_link( $datetime->format( 'Y' ), $datetime->format( 'm' ), $datetime->format( 'd' ) );
-		$format = get_option( 'date_format' );
-	} elseif ( is_month() ) {
-		$link   = get_month_link( $datetime->format( 'Y' ), $datetime->format( 'm' ) );
-		$format = 'F Y';
-	} elseif ( is_year() ) {
-		$link   = get_year_link( $datetime->format( 'Y' ) );
-		$format = 'Y';
+	$date      = get_post_datetime( $posts[0] );
+	$timestamp = $date->getTimestamp();
+	switch ( $period['type'] ) {
+		case 'week':
+			$link  = tempus_get_post_week_link( $posts[0] );
+			$label = sprintf(
+				/* translators: 1: ISO-8601 week number. 2: ISO-8601 year. */
+				__( 'Week %1$s, %2$s', 'tempus-fugit' ),
+				$date->format( 'W' ),
+				$date->format( 'o' )
+			);
+			break;
+		case 'dayofyear':
+			$link  = tempus_get_day_of_year_link( $date );
+			$label = wp_date( get_option( 'date_format' ), $timestamp );
+			break;
+		case 'day':
+			$link  = get_day_link( $date->format( 'Y' ), $date->format( 'm' ), $date->format( 'd' ) );
+			$label = wp_date( get_option( 'date_format' ), $timestamp );
+			break;
+		case 'month':
+			$link  = get_month_link( $date->format( 'Y' ), $date->format( 'm' ) );
+			$label = wp_date( _x( 'F Y', 'monthly archives date format', 'tempus-fugit' ), $timestamp );
+			break;
+		default:
+			$link  = get_year_link( $date->format( 'Y' ) );
+			$label = $date->format( 'Y' );
 	}
-	$rel    = $previous ? 'prev' : 'next';
-	$string = '<a href="' . esc_url( $link ) . '" rel="' . esc_attr( $rel ) . '">' . esc_html( $linktime->format( $format ) ) . '</a>';
-	return $string;
+
+	$rel = $previous ? 'prev' : 'next';
+	return '<a href="' . esc_url( $link ) . '" rel="' . $rel . '">' . wp_kses_post( str_replace( '%title', esc_html( $label ), $text ) ) . '</a>';
 }
 
 /**
@@ -64,54 +91,47 @@ function tempus_get_adjacent_date_link( $previous = true ) {
  * Mirrors the markup of core's `get_the_post_navigation()`.
  *
  * @since 1.2.0
+ * @since 1.2.1 Applies the `prev_text`, `next_text`, `screen_reader_text`, and `aria_label` arguments.
  *
  * @param array $args {
  *     Optional. Navigation arguments. Default empty array.
  *
- *     @type string $prev_text          Previous link text. Not currently used. Default '%title'.
- *     @type string $next_text          Next link text. Not currently used. Default '%title'.
- *     @type bool   $in_same_term       Not currently used. Default false.
- *     @type string $screen_reader_text Screen reader text for the nav heading. Not currently applied;
- *                                      the heading is always 'Date navigation'.
- *     @type string $aria_label         ARIA label for the nav element. Not currently applied;
- *                                      the label is always 'Date navigation'.
+ *     @type string $prev_text          Previous link text. `%title` is replaced with the archive's
+ *                                      date. Default '%title'.
+ *     @type string $next_text          Next link text. `%title` is replaced with the archive's date.
+ *                                      Default '%title'.
+ *     @type string $screen_reader_text Screen reader text for the nav heading.
+ *                                      Default 'Date navigation'.
+ *     @type string $aria_label         ARIA label for the nav element. Default is the
+ *                                      screen reader text.
  *     @type string $class              Custom class for the nav element. Default 'date-navigation'.
  * }
  * @return string Navigation markup.
  */
 function tempus_get_the_date_navigation( $args = array() ) {
-	// Make sure the nav element has an aria-label attribute: fallback to the screen reader text.
-	if ( ! empty( $args['screen_reader_text'] ) && empty( $args['aria_label'] ) ) {
-		$args['aria_label'] = $args['screen_reader_text'];
-	}
-
-	$args       = wp_parse_args(
+	$args = wp_parse_args(
 		$args,
 		array(
 			'prev_text'          => '%title',
 			'next_text'          => '%title',
-			'in_same_term'       => false,
+			/* translators: Hidden accessibility text. */
 			'screen_reader_text' => __( 'Date navigation', 'tempus-fugit' ),
-			'aria_label'         => __( 'Dates', 'tempus-fugit' ),
+			'aria_label'         => '',
 			'class'              => 'date-navigation',
 		)
 	);
-	$navigation = '';
-	$previous   = tempus_get_adjacent_date_link();
+	if ( empty( $args['aria_label'] ) ) {
+		$args['aria_label'] = $args['screen_reader_text'];
+	}
+
+	$previous = tempus_get_adjacent_date_link( true, $args['prev_text'] );
 	if ( $previous ) {
 		$previous = '<div class="nav-previous">' . $previous . '</div>';
 	}
 
-	$next = tempus_get_adjacent_date_link( false );
+	$next = tempus_get_adjacent_date_link( false, $args['next_text'] );
 	if ( $next ) {
 		$next = '<div class="nav-next">' . $next . '</div>';
-	}
-
-	if ( empty( $screen_reader_text ) ) {
-		$screen_reader_text = /* translators: Hidden accessibility text. */ __( 'Date navigation', 'tempus-fugit' );
-	}
-	if ( empty( $aria_label ) ) {
-		$aria_label = $screen_reader_text;
 	}
 
 	$template = '
@@ -119,5 +139,5 @@ function tempus_get_the_date_navigation( $args = array() ) {
 			<h2 class="screen-reader-text">%2$s</h2>
 			<div class="nav-links">%3$s</div>
 		</nav>';
-	return sprintf( $template, sanitize_html_class( $args['class'] ), esc_html( $screen_reader_text ), $previous . $next, esc_attr( $aria_label ) );
+	return sprintf( $template, sanitize_html_class( $args['class'] ), esc_html( $args['screen_reader_text'] ), $previous . $next, esc_attr( $args['aria_label'] ) );
 }

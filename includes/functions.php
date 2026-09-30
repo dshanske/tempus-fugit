@@ -103,42 +103,96 @@ function tempus_get_archive_date_query() {
 }
 
 /**
- * Returns the date of the day, month, or year archive being viewed.
+ * Returns the start of the date archive being viewed.
  *
  * @since 1.2.0
+ * @since 1.2.1 Supports week and day-of-year archives, and returns the start of the period.
  *
- * @return DateTime|false Archive date in the site's timezone, or false if this is not a
- *                        day, month, or year archive.
+ * @return DateTime|false Start of the archive's period in the site's timezone, or false if this
+ *                        is not a day, month, year, week, or day-of-year archive.
  */
 function tempus_get_archive_datetime() {
+	$period = tempus_get_archive_period();
+	return $period ? DateTime::createFromImmutable( $period['start'] ) : false;
+}
+
+/**
+ * Returns the type and date range of the date archive being viewed.
+ *
+ * On This Day and This Week archives have no year, so they have no period.
+ *
+ * @since 1.2.1
+ *
+ * @return array|false {
+ *     The archive's period, or false if this is not a day, month, year, week, or day-of-year archive.
+ *
+ *     @type string            $type  'day', 'month', 'year', 'week', or 'dayofyear'.
+ *     @type DateTimeImmutable $start First second of the period, in the site's timezone.
+ *     @type DateTimeImmutable $end   Last second of the period, in the site's timezone.
+ * }
+ */
+function tempus_get_archive_period() {
 	if ( ! is_date() ) {
 		return false;
 	}
-	$date = tempus_get_archive_date_query();
-	$d    = '';
-	if ( array_key_exists( 'year', $date ) ) {
-		$d .= $date['year'];
-	}
-	if ( array_key_exists( 'monthnum', $date ) ) {
-		if ( ! empty( $d ) ) {
-			$d .= '-';
+	$timezone = wp_timezone();
+	if ( Tempus_Week_Of_Year::is_week() && get_query_var( 'tempus_year' ) ) {
+		$type  = 'week';
+		$start = Tempus_Week_Of_Year::get_week_start( (int) get_query_var( 'tempus_year' ), (int) get_query_var( 'tempus_week' ) );
+		$end   = $start->modify( '+6 days' );
+	} elseif ( Tempus_Day_Of_Year::is_dayofyear() && get_query_var( 'tempus_year' ) ) {
+		$type  = 'dayofyear';
+		$start = DateTimeImmutable::createFromFormat( '!Y z', get_query_var( 'tempus_year' ) . ' ' . ( (int) get_query_var( 'dayofyear' ) - 1 ), $timezone );
+		$end   = $start;
+	} else {
+		$date = tempus_get_archive_date_query();
+		if ( empty( $date['year'] ) ) {
+			return false;
 		}
-		$d .= $date['monthnum'];
-	}
-	if ( array_key_exists( 'day', $date ) ) {
-		if ( ! empty( $d ) ) {
-			$d .= '-';
+		// The ! resets unspecified fields, so a month archive starts on the 1st, not today's day.
+		if ( is_day() ) {
+			$type  = 'day';
+			$start = DateTimeImmutable::createFromFormat( '!Y-m-d', $date['year'] . '-' . $date['monthnum'] . '-' . $date['day'], $timezone );
+			$end   = $start;
+		} elseif ( is_month() ) {
+			$type  = 'month';
+			$start = DateTimeImmutable::createFromFormat( '!Y-m', $date['year'] . '-' . $date['monthnum'], $timezone );
+			$end   = $start->modify( 'last day of this month' );
+		} elseif ( is_year() ) {
+			$type  = 'year';
+			$start = DateTimeImmutable::createFromFormat( '!Y', (string) $date['year'], $timezone );
+			$end   = $start->modify( 'last day of december' );
+		} else {
+			return false;
 		}
-		$d .= $date['day'];
 	}
-	if ( is_day() ) {
-		return date_create_from_format( 'Y-m-d', $d, wp_timezone() );
-	} elseif ( is_month() ) {
-		return date_create_from_format( 'Y-m', $d, wp_timezone() );
-	} elseif ( is_year() ) {
-		return date_create_from_format( 'Y', $d, wp_timezone() );
+	return array(
+		'type'  => $type,
+		'start' => $start->setTime( 0, 0 ),
+		'end'   => $end->setTime( 23, 59, 59 ),
+	);
+}
+
+/**
+ * Returns the URL of a day-of-year archive, such as `/2024/075/`.
+ *
+ * Falls back to the day archive when there is no day-of-year permalink structure.
+ *
+ * @since 1.2.1
+ *
+ * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
+ *
+ * @param DateTimeInterface $date A date in the day.
+ * @return string Archive URL.
+ */
+function tempus_get_day_of_year_link( $date ) {
+	global $wp_rewrite;
+	$struct = $wp_rewrite->get_extra_permastruct( 'dayofyear' );
+	if ( ! $struct ) {
+		return get_day_link( $date->format( 'Y' ), $date->format( 'm' ), $date->format( 'd' ) );
 	}
-	return false;
+	$path = str_replace( array( '%year%', '%dayofyear%' ), array( $date->format( 'Y' ), zeroise( (int) $date->format( 'z' ) + 1, 3 ) ), $struct );
+	return home_url( user_trailingslashit( $path, 'day' ) );
 }
 
 /**
