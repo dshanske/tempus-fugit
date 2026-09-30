@@ -44,7 +44,7 @@ class Tempus_Week_Of_Year {
 	}
 
 	/**
-	 * Adds the `week` public query var.
+	 * Adds the `tempus_week` public query var.
 	 *
 	 * Hooked to `query_vars`.
 	 *
@@ -54,7 +54,7 @@ class Tempus_Week_Of_Year {
 	 * @return string[] Public query vars.
 	 */
 	public static function query_vars( $var ) {
-		$var[] = 'week';
+		$var[] = 'tempus_week';
 		return $var;
 	}
 
@@ -66,7 +66,7 @@ class Tempus_Week_Of_Year {
 	 * @since 1.0.5
 	 */
 	public static function rewrite_rules() {
-		add_rewrite_tag( '%week%', '([0-9]{2})', 'week=' );
+		add_rewrite_tag( '%week%', '([0-9]{2})', 'tempus_week=' );
 		add_permastruct(
 			'week',
 			'%year%/W%week%',
@@ -140,11 +140,11 @@ class Tempus_Week_Of_Year {
 		}
 
 		// If this is a date archive for a year and week.
-		if ( is_date() && ! empty( $query->get( 'week' ) ) && ! empty( $query->get( 'year' ) ) ) {
+		if ( is_date() && ! empty( $query->get( 'tempus_week' ) ) && ! empty( $query->get( 'year' ) ) ) {
 			$query->set(
 				'date_query',
 				array(
-					'week' => $query->get( 'week' ),
+					'week' => $query->get( 'tempus_week' ),
 					'year' => $query->get( 'year' ),
 				)
 			);
@@ -161,7 +161,7 @@ class Tempus_Week_Of_Year {
 	 * @return bool True for a week archive.
 	 */
 	public static function is_week() {
-		return ( is_date() && is_numeric( get_query_var( 'week' ) ) );
+		return ( is_date() && is_numeric( get_query_var( 'tempus_week' ) ) );
 	}
 
 	/**

@@ -41,7 +41,7 @@ class Tempus_Order_By {
 	}
 
 	/**
-	 * Adds the `sort` public query var.
+	 * Adds the `tempus_sort` public query var.
 	 *
 	 * Hooked to `query_vars`.
 	 *
@@ -51,7 +51,7 @@ class Tempus_Order_By {
 	 * @return string[] Public query vars.
 	 */
 	public static function query_vars( $var ) {
-		$var[] = 'sort';
+		$var[] = 'tempus_sort';
 		return $var;
 	}
 
@@ -64,30 +64,30 @@ class Tempus_Order_By {
 		$sort = '(updated|oldest|random)/';
 		add_rewrite_rule(
 			$sort . tempus_get_feed_regex( false ),
-			'index.php?feed=$matches[2]&sort=$matches[1]',
+			'index.php?feed=$matches[2]&tempus_sort=$matches[1]',
 			'top'
 		);
 		add_rewrite_rule(
 			$sort . tempus_get_feed_regex(),
-			'index.php?feed=$matches[2]&sort=$matches[1]',
+			'index.php?feed=$matches[2]&tempus_sort=$matches[1]',
 			'top'
 		);
 
 		add_rewrite_rule(
 			$sort . tempus_get_pagination_regex(),
-			'index.php?sort=$matches[1]&paged=$matches[2]',
+			'index.php?tempus_sort=$matches[1]&paged=$matches[2]',
 			'top'
 		);
 
 		add_rewrite_rule(
 			$sort . '?$',
-			'index.php?sort=$matches[1]',
+			'index.php?tempus_sort=$matches[1]',
 			'top'
 		);
 	}
 
 	/**
-	 * Applies the order requested by the `sort` query var.
+	 * Applies the order requested by the `tempus_sort` query var.
 	 *
 	 * Hooked to `pre_get_posts`. Skips admin requests.
 	 *
@@ -102,16 +102,16 @@ class Tempus_Order_By {
 			return;
 		}
 
-		if ( ! empty( $query->get( 'sort' ) ) ) {
+		if ( ! empty( $query->get( 'tempus_sort' ) ) ) {
 			$query->is_archive      = true;
 			$query->is_home         = false;
 			$query->is_comment_feed = false;
 		}
-		if ( 'updated' === $query->get( 'sort' ) ) {
+		if ( 'updated' === $query->get( 'tempus_sort' ) ) {
 			$query->set( 'orderby', 'modified' );
-		} elseif ( 'oldest' === $query->get( 'sort' ) ) {
+		} elseif ( 'oldest' === $query->get( 'tempus_sort' ) ) {
 			$query->set( 'order', 'ASC' );
-		} elseif ( 'random' === $query->get( 'sort' ) ) {
+		} elseif ( 'random' === $query->get( 'tempus_sort' ) ) {
 			$query->set( 'orderby', 'rand' );
 		}
 		return $query;
@@ -129,7 +129,7 @@ class Tempus_Order_By {
 	 * @return string Archive title.
 	 */
 	public static function archive_title( $title ) {
-		$sort = get_query_var( 'sort' );
+		$sort = get_query_var( 'tempus_sort' );
 		if ( $sort ) {
 			$return = self::title( $sort );
 			if ( $return ) {
@@ -170,7 +170,7 @@ class Tempus_Order_By {
 	 * @return array Document title parts.
 	 */
 	public static function title_parts( $title ) {
-		$sort = get_query_var( 'sort' );
+		$sort = get_query_var( 'tempus_sort' );
 		if ( $sort ) {
 			$title['title'] = self::title( $sort );
 		}
