@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  * Adds This Week archives.
  *
  * `/thisweek` lists posts from the current week number in previous years, and
- * `/thisweek/NN` lists posts from that week number in every year. Weeks are ISO-8601 weeks,
+ * `/thisweek/NN` lists posts from that week number in previous years. Weeks are ISO-8601 weeks,
  * which start on Monday, whatever the site's "Week starts on" setting.
  *
  * @since 1.0.3
@@ -255,13 +255,14 @@ class Tempus_This_Week {
 	/**
 	 * Turns a This Week request into a query for an ISO-8601 week number.
 	 *
-	 * `/thisweek` uses the current week and only lists posts from before this week began.
-	 * `/thisweek/NN` uses week NN in every year. The week is matched in `posts_where()`,
+	 * `/thisweek` uses the current week and `/thisweek/NN` uses week NN. Either way, only posts
+	 * from before the current ISO-8601 year are listed. The week is matched in `posts_where()`,
 	 * because core's `w` query var numbers weeks by the site's "Week starts on" setting.
 	 *
 	 * Hooked to `pre_get_posts`. Only affects the main query on the front end.
 	 *
 	 * @since 1.0.3
+	 * @since 1.2.1 Also excludes the current year from `/thisweek/NN`.
 	 *
 	 * @param WP_Query $query The query being prepared.
 	 * @return WP_Query|void The query, or nothing for requests that are skipped.
@@ -284,18 +285,13 @@ class Tempus_This_Week {
 		$week = (int) $query->get( 'w' );
 		// Replace core's week number with the ISO-8601 week.
 		$query->set( 'w', '' );
-		if ( $week ) {
-			$query->set( 'tempus_iso_week', $week );
-			return $query;
-		}
-
 		$now = new DateTimeImmutable( 'now', wp_timezone() );
-		$query->set( 'tempus_iso_week', (int) $now->format( 'W' ) );
+		$query->set( 'tempus_iso_week', $week ? $week : (int) $now->format( 'W' ) );
 		$query->set(
 			'date_query',
 			array(
 				array(
-					'before' => self::get_current_week_start()->format( 'Y-m-d H:i:s' ),
+					'before' => Tempus_Week_Of_Year::get_week_start( (int) $now->format( 'o' ), 1 )->format( 'Y-m-d H:i:s' ),
 				),
 			)
 		);
