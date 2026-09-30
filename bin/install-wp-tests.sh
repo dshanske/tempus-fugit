@@ -92,7 +92,6 @@ install_wp() {
 		tar --strip-components=1 -zxmf $TMPDIR/wordpress.tar.gz -C $WP_CORE_DIR
 	fi
 
-	download https://raw.github.com/markoheijnen/wp-mysqli/master/db.php $WP_CORE_DIR/wp-content/db.php
 }
 
 install_test_suite() {
@@ -105,14 +104,24 @@ install_test_suite() {
 
 	# set up testing suite if it doesn't yet exist
 	if [ ! -d $WP_TESTS_DIR ]; then
-		# set up testing suite
+		# The test suite comes from the wordpress-develop Git mirror, since GitHub runners no longer ship svn.
+		case $WP_TESTS_TAG in
+			tags/*) local GIT_REF=${WP_TESTS_TAG#tags/} ;;
+			branches/*) local GIT_REF=${WP_TESTS_TAG#branches/} ;;
+			*) local GIT_REF=trunk ;;
+		esac
+		local CHECKOUT_DIR=$TMPDIR/wordpress-develop
+		rm -rf $CHECKOUT_DIR
+		git clone --quiet --depth=1 --branch "$GIT_REF" --filter=blob:none --sparse https://github.com/WordPress/wordpress-develop.git $CHECKOUT_DIR
+		git -C $CHECKOUT_DIR sparse-checkout set tests/phpunit/includes tests/phpunit/data
 		mkdir -p $WP_TESTS_DIR
-		svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ $WP_TESTS_DIR/includes
-		svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ $WP_TESTS_DIR/data
+		cp -R $CHECKOUT_DIR/tests/phpunit/includes $CHECKOUT_DIR/tests/phpunit/data $WP_TESTS_DIR/
+		cp $CHECKOUT_DIR/wp-tests-config-sample.php $WP_TESTS_DIR/wp-tests-config-sample.php
+		rm -rf $CHECKOUT_DIR
 	fi
 
-	if [ ! -f wp-tests-config.php ]; then
-		download https://develop.svn.wordpress.org/${WP_TESTS_TAG}/wp-tests-config-sample.php "$WP_TESTS_DIR"/wp-tests-config.php
+	if [ ! -f "$WP_TESTS_DIR"/wp-tests-config.php ]; then
+		cp "$WP_TESTS_DIR"/wp-tests-config-sample.php "$WP_TESTS_DIR"/wp-tests-config.php
 		# remove all forward slashes in the end
 		WP_CORE_DIR=$(echo $WP_CORE_DIR | sed "s:/\+$::")
 		sed $ioption "s:dirname( __FILE__ ) . '/src/':'$WP_CORE_DIR/':" "$WP_TESTS_DIR"/wp-tests-config.php
