@@ -18,4 +18,5 @@ jobs:
         exclude-directories: |
           './bin'
           './.github'
+          './tests'
         exclude-checks: 'file_type'
