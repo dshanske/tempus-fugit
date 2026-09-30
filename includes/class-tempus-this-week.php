@@ -6,6 +6,8 @@
  * @since 1.0.3
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Adds This Week archives.
  *

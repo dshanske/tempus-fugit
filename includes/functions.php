@@ -9,6 +9,8 @@
  * @since 1.0.2
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Returns the URL of the day archive for a post's publish date.
  *

@@ -6,6 +6,8 @@
  * @since 1.0.5
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Adds the `%week%` permalink tag and week archives, such as `/2024/W12/`.
  *

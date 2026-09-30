@@ -13,6 +13,8 @@
  * @package TempusFugit
  */
 
+defined( 'ABSPATH' ) || exit;
+
 register_activation_hook( __FILE__, array( 'Tempus_Fugit_Plugin', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Tempus_Fugit_Plugin', 'deactivate' ) );
 add_action( 'upgrader_process_complete', array( 'Tempus_Fugit_Plugin', 'upgrader_process_complete' ), 10, 2 );

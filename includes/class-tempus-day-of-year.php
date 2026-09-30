@@ -6,6 +6,8 @@
  * @since 1.0.0
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Adds the `%dayofyear%` permalink tag and day-of-year date archives, such as `/2024/075/`.
  *

@@ -6,6 +6,8 @@
  * @since 1.0.9
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Changes the default date format on date archives to suit the archive type.
  *

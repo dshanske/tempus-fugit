@@ -6,6 +6,8 @@
  * @since 1.0.0
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Adds `/updated`, `/oldest`, and `/random` archives of all posts.
  *
