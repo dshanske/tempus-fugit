@@ -3,7 +3,7 @@
  * Removes the plugin's data when the plugin is deleted.
  *
  * @package TempusFugit
- * @since 1.2.1
+ * @since 1.3.0
  */
 
 defined( 'ABSPATH' ) || exit;

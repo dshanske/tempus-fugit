@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  * skipped and there is no link past the newest post.
  *
  * @since 1.2.0
- * @since 1.2.1 Skips periods without posts, supports week and day-of-year archives, and added `$text`.
+ * @since 1.3.0 Skips periods without posts, supports week and day-of-year archives, and added `$text`.
  *
  * @param bool   $previous Optional. Whether to link to the previous archive (true) or the next (false).
  *                         Default true.
@@ -91,7 +91,7 @@ function tempus_get_adjacent_date_link( $previous = true, $text = '%title' ) {
  * Mirrors the markup of core's `get_the_post_navigation()`.
  *
  * @since 1.2.0
- * @since 1.2.1 Applies the `prev_text`, `next_text`, `screen_reader_text`, and `aria_label` arguments.
+ * @since 1.3.0 Applies the `prev_text`, `next_text`, `screen_reader_text`, and `aria_label` arguments.
  *
  * @param array $args {
  *     Optional. Navigation arguments. Default empty array.

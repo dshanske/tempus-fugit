@@ -106,7 +106,7 @@ function tempus_get_archive_date_query() {
  * Returns the start of the date archive being viewed.
  *
  * @since 1.2.0
- * @since 1.2.1 Supports week and day-of-year archives, and returns the start of the period.
+ * @since 1.3.0 Supports week and day-of-year archives, and returns the start of the period.
  *
  * @return DateTime|false Start of the archive's period in the site's timezone, or false if this
  *                        is not a day, month, year, week, or day-of-year archive.
@@ -121,7 +121,7 @@ function tempus_get_archive_datetime() {
  *
  * On This Day and This Week archives have no year, so they have no period.
  *
- * @since 1.2.1
+ * @since 1.3.0
  *
  * @return array|false {
  *     The archive's period, or false if this is not a day, month, year, week, or day-of-year archive.
@@ -178,7 +178,7 @@ function tempus_get_archive_period() {
  *
  * Falls back to the day archive when there is no day-of-year permalink structure.
  *
- * @since 1.2.1
+ * @since 1.3.0
  *
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  *
@@ -198,7 +198,7 @@ function tempus_get_day_of_year_link( $date ) {
 /**
  * Returns the name of the term being viewed on a category, tag, or taxonomy archive.
  *
- * @since 1.2.1
+ * @since 1.3.0
  *
  * @return string Term name, or an empty string outside term archives.
  */

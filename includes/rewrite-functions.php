@@ -87,7 +87,7 @@ function tempus_generate_permastruct( $elements ) {
  * Built from each taxonomy's permalink structure, so custom category and tag bases and
  * custom taxonomies are included. The regex has one capture group, the term.
  *
- * @since 1.2.1
+ * @since 1.3.0
  *
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  *

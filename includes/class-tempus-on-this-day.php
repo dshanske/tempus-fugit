@@ -204,7 +204,7 @@ class Tempus_On_This_Day {
 	/**
 	 * Returns the URL of today's On This Day archive for a category, tag, or other term.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param WP_Term|int|string $term     Term object, ID, or slug.
 	 * @param string             $taxonomy Optional. Taxonomy name. Required when `$term` is a slug.
@@ -234,7 +234,7 @@ class Tempus_On_This_Day {
 	 * the rules are generated, and always come before each taxonomy's own rules. Otherwise a
 	 * category rule such as `category/(.+?)/?$` could match `/category/news/onthisday/` first.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param string[] $rules Rewrite rules, keyed by regex.
 	 * @return string[] Rewrite rules with the taxonomy archive rules first.
@@ -263,7 +263,7 @@ class Tempus_On_This_Day {
 	 * Hooked to `pre_get_posts`. Only affects the main query on the front end.
 	 *
 	 * @since 1.0.0
-	 * @since 1.2.1 Also excludes the current year from `/onthisday/MM/DD`.
+	 * @since 1.3.0 Also excludes the current year from `/onthisday/MM/DD`.
 	 *
 	 * @param WP_Query $query The query being prepared.
 	 * @return WP_Query|void The query, or nothing for requests that are skipped.

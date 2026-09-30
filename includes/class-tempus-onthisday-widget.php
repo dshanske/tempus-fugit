@@ -17,7 +17,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	/**
 	 * Option holding the widget cache version. Changing it invalidates every widget cache.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @var string
 	 */
@@ -62,7 +62,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	/**
 	 * Returns the term the widget is limited to.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param array $instance Widget settings.
 	 * @return WP_Term|false|null The term, false if the configured term doesn't exist, or null if
@@ -79,7 +79,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	/**
 	 * Registers the hooks that invalidate widget caches when published posts change.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 */
 	public static function register_cache_hooks() {
 		add_action( 'transition_post_status', array( __CLASS__, 'transition_post_status' ), 10, 3 );
@@ -93,7 +93,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 * Bumps a version number that is part of each cache key, so it works with or without a
 	 * persistent object cache. Old entries expire on their own.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 */
 	public static function flush_cache() {
 		update_option( self::CACHE_VERSION_OPTION, (int) get_option( self::CACHE_VERSION_OPTION, 0 ) + 1 );
@@ -104,7 +104,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 *
 	 * Hooked to `transition_post_status`.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param string  $new_status New post status.
 	 * @param string  $old_status Old post status.
@@ -121,7 +121,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 *
 	 * Hooked to `deleted_post`.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param int     $post_id Post ID.
 	 * @param WP_Post $post    Post.
@@ -137,7 +137,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 *
 	 * Hooked to `set_object_terms`.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param int $object_id Object ID.
 	 */
@@ -153,7 +153,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 * The cache is separate for each widget, period, term, and number of posts, and is replaced
 	 * whenever a published post changes (see flush_cache()).
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param array              $query    Arguments for get_posts().
 	 * @param string             $period   The day or week being shown, such as '03-15' or '2026-W40'.
@@ -183,7 +183,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 * The name includes the widget's ID and the cache version, so it changes whenever a
 	 * published post changes (see flush_cache()).
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param array $parts What the cached data depends on, such as the period, term, and number.
 	 * @return string Transient name.
@@ -195,7 +195,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	/**
 	 * Returns query arguments that limit posts to a term.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param WP_Term|null $term Term, or null for no limit.
 	 * @return array Query arguments with a `tax_query`, or an empty array.
@@ -220,7 +220,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 *
 	 * Each group is headed with "N years ago..." linking to an archive for that post.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param int[]    $posts      Post IDs.
 	 * @param string   $id         HTML ID for the container.
@@ -376,7 +376,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	/**
 	 * Returns the taxonomies a widget can be limited to.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @return string[] Taxonomy labels, keyed by taxonomy name.
 	 */

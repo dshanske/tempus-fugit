@@ -112,7 +112,7 @@ class Tempus_Week_Of_Year {
 	 * calendar year. ISO weeks can cross New Year: December 30, 2024 is in week 1 of 2025,
 	 * so in a structure with `%week%`, `%year%` must be the ISO year.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param string  $permalink The permalink structure.
 	 * @param WP_Post $post      The post.
@@ -195,7 +195,7 @@ class Tempus_Week_Of_Year {
 	 *
 	 * A week number outside the year rolls over into the neighboring year.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param int $year ISO-8601 week-numbering year.
 	 * @param int $week ISO-8601 week number.

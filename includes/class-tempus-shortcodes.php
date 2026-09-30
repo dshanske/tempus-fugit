@@ -3,7 +3,7 @@
  * Shortcodes.
  *
  * @package TempusFugit
- * @since 1.2.1
+ * @since 1.3.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -17,14 +17,14 @@ defined( 'ABSPATH' ) || exit;
  *     [tempus_onthisday title="On this day" number="5" taxonomy="category" term="travel"]
  *     [tempus_random period="week" taxonomy="post_tag" term="family"]
  *
- * @since 1.2.1
+ * @since 1.3.0
  */
 class Tempus_Shortcodes {
 
 	/**
 	 * Registers the shortcodes.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 */
 	public static function register() {
 		add_shortcode( 'tempus_onthisday', array( __CLASS__, 'onthisday' ) );
@@ -35,7 +35,7 @@ class Tempus_Shortcodes {
 	/**
 	 * Renders the `[tempus_onthisday]` shortcode.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param array|string $atts Shortcode attributes. See render().
 	 * @return string Shortcode HTML.
@@ -47,7 +47,7 @@ class Tempus_Shortcodes {
 	/**
 	 * Renders the `[tempus_thisweek]` shortcode.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param array|string $atts Shortcode attributes. See render().
 	 * @return string Shortcode HTML.
@@ -62,7 +62,7 @@ class Tempus_Shortcodes {
 	 * Takes a `period` attribute ('all', 'day', or 'week'; default 'all') in addition to the
 	 * attributes in render(). `number` defaults to 1.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param array|string $atts Shortcode attributes.
 	 * @return string Shortcode HTML.
@@ -77,7 +77,7 @@ class Tempus_Shortcodes {
 	 * The attributes and their defaults come from the widget's settings, and are sanitized the
 	 * same way.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param Tempus_OnThisDay_Widget $widget Widget to render.
 	 * @param array|string            $atts {
