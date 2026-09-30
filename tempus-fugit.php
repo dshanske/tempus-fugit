@@ -9,6 +9,7 @@
  * License: GPLv2 or later
  * Version: 1.2.0
  * Requires at least: 6.2
+ * Requires PHP: 7.4
  *
  * @package TempusFugit
  */

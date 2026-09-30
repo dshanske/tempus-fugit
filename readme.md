@@ -3,7 +3,7 @@
 **Tags:** time, archive, date, onthisday  
 **Stable tag:** 1.2.0  
 **Requires at least:** 6.2  
-**Requires PHP:** 7.0  
+**Requires PHP:** 7.4  
 **Tested up to:** 7.1  
 **License:** GPLv2 or later  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html  
