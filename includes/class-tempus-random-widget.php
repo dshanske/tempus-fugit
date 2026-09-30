@@ -3,7 +3,7 @@
  * Random Memory widget.
  *
  * @package TempusFugit
- * @since 1.2.1
+ * @since 1.3.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -15,13 +15,13 @@ defined( 'ABSPATH' ) || exit;
  * A new post is picked on every page view. Only the number of matching posts is cached, so there
  * is no `ORDER BY RAND()` over the posts table.
  *
- * @since 1.2.1
+ * @since 1.3.0
  */
 class Tempus_Random_Widget extends Tempus_OnThisDay_Widget {
 	/**
 	 * Sets up the widget name and description.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 */
 	public function __construct() {
 		WP_Widget::__construct(
@@ -37,7 +37,7 @@ class Tempus_Random_Widget extends Tempus_OnThisDay_Widget {
 	/**
 	 * Returns the periods a random memory can be picked from.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @return string[] Period labels, keyed by period.
 	 */
@@ -52,7 +52,7 @@ class Tempus_Random_Widget extends Tempus_OnThisDay_Widget {
 	/**
 	 * Fills in default settings.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param array $instance Widget settings.
 	 * @return array Widget settings with defaults for 'title', 'number', 'nonefound', 'taxonomy',
@@ -76,7 +76,7 @@ class Tempus_Random_Widget extends Tempus_OnThisDay_Widget {
 	 * The title links to the archive for the period: `/random/`, On This Day, or This Week, or
 	 * the term's archive when the widget is limited to a term.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @see WP_Widget::widget()
 	 *
@@ -103,7 +103,7 @@ class Tempus_Random_Widget extends Tempus_OnThisDay_Widget {
 	/**
 	 * Returns the archive URL for a period.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param string             $period 'all', 'day', or 'week'.
 	 * @param WP_Term|false|null $term   Term from get_widget_term().
@@ -125,7 +125,7 @@ class Tempus_Random_Widget extends Tempus_OnThisDay_Widget {
 	 * "This day" and "this week" only include previous years, like the On This Day and This Week
 	 * archives.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param string $period 'all', 'day', or 'week'.
 	 * @return array Query arguments.
@@ -164,7 +164,7 @@ class Tempus_Random_Widget extends Tempus_OnThisDay_Widget {
 	 * The number of matching posts is cached like other widget results. Each call then picks
 	 * random positions and fetches the posts at those positions.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param string             $period   'all', 'day', or 'week'.
 	 * @param WP_Term|false|null $term     Term from get_widget_term().
@@ -225,7 +225,7 @@ class Tempus_Random_Widget extends Tempus_OnThisDay_Widget {
 	/**
 	 * Sanitizes widget settings as they are saved.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @see WP_Widget::update()
 	 *
@@ -243,7 +243,7 @@ class Tempus_Random_Widget extends Tempus_OnThisDay_Widget {
 	/**
 	 * Outputs the widget settings form.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @see WP_Widget::form()
 	 *

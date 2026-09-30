@@ -142,7 +142,7 @@ class Tempus_Order_By {
 	/**
 	 * Returns the URL of a sorted archive, such as `/random/`.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
 	 *

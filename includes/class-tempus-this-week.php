@@ -205,7 +205,7 @@ class Tempus_This_Week {
 	/**
 	 * Returns the URL of the current This Week archive for a category, tag, or other term.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param WP_Term|int|string $term     Term object, ID, or slug.
 	 * @param string             $taxonomy Optional. Taxonomy name. Required when `$term` is a slug.
@@ -235,7 +235,7 @@ class Tempus_This_Week {
 	 * the rules are generated, and always come before each taxonomy's own rules. Otherwise a
 	 * category rule such as `category/(.+?)/?$` could match `/category/news/onthisday/` first.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param string[] $rules Rewrite rules, keyed by regex.
 	 * @return string[] Rewrite rules with the taxonomy archive rules first.
@@ -265,7 +265,7 @@ class Tempus_This_Week {
 	 * Hooked to `pre_get_posts`. Only affects the main query on the front end.
 	 *
 	 * @since 1.0.3
-	 * @since 1.2.1 Also excludes the current year from `/thisweek/NN`.
+	 * @since 1.3.0 Also excludes the current year from `/thisweek/NN`.
 	 *
 	 * @param WP_Query $query The query being prepared.
 	 * @return WP_Query|void The query, or nothing for requests that are skipped.
@@ -309,7 +309,7 @@ class Tempus_This_Week {
 	 *
 	 * Hooked to `posts_where`.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
 	 *
@@ -329,7 +329,7 @@ class Tempus_This_Week {
 	/**
 	 * Returns midnight on the Monday that started the current ISO-8601 week, in the site's timezone.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @return DateTimeImmutable Start of the current week.
 	 */

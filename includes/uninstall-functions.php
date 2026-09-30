@@ -5,7 +5,7 @@
  * Remove the plugin's data when it is deleted. Loaded by uninstall.php.
  *
  * @package TempusFugit
- * @since 1.2.1
+ * @since 1.3.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Removes the plugin's data from every site.
  *
- * @since 1.2.1
+ * @since 1.3.0
  */
 function tempus_fugit_uninstall() {
 	if ( is_multisite() ) {
@@ -39,7 +39,7 @@ function tempus_fugit_uninstall() {
  * persistent object cache, cached results are not in the database and expire within an hour.
  * The stored rewrite rules are cleared so they are rebuilt without the plugin's rules.
  *
- * @since 1.2.1
+ * @since 1.3.0
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  */
@@ -50,7 +50,7 @@ function tempus_fugit_uninstall_site() {
 	delete_option( 'widget_tempus_random_widget' );
 	delete_option( 'tempus_fugit_widget_cache_version' );
 
-	// Cached widget results, with the current names and the names used before 1.2.1.
+	// Cached widget results, with the current names and the names used before 1.3.0.
 	foreach ( array( 'tempus_widget_', 'onthisday_widget', 'thisweek_widget' ) as $prefix ) {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Transients can't be deleted by prefix through the API.
 		$wpdb->query(

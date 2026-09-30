@@ -3,7 +3,7 @@
  * Minor updates.
  *
  * @package TempusFugit
- * @since 1.2.1
+ * @since 1.3.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -16,13 +16,13 @@ defined( 'ABSPATH' ) || exit;
  * "last updated" date. The checkbox is in the Publish box of the classic editor (ClassicPress, or
  * WordPress with the Classic Editor plugin); the block editor doesn't show it.
  *
- * @since 1.2.1
+ * @since 1.3.0
  */
 class Tempus_Minor_Update {
 	/**
 	 * Name of the checkbox field.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @var string
 	 */
@@ -31,7 +31,7 @@ class Tempus_Minor_Update {
 	/**
 	 * Name of the nonce field.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @var string
 	 */
@@ -40,7 +40,7 @@ class Tempus_Minor_Update {
 	/**
 	 * Registers the hooks for minor updates.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 */
 	public function __construct() {
 		add_action( 'post_submitbox_misc_actions', array( __CLASS__, 'checkbox' ) );
@@ -55,7 +55,7 @@ class Tempus_Minor_Update {
 	 *
 	 * Hooked to `post_submitbox_misc_actions`.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param WP_Post $post The post being edited.
 	 */
@@ -80,7 +80,7 @@ class Tempus_Minor_Update {
 	 *
 	 * Hooked to `wp_insert_post_data`.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param array $data    Sanitized post data about to be saved.
 	 * @param array $postarr Post data passed to wp_insert_post().
@@ -106,7 +106,7 @@ class Tempus_Minor_Update {
 	/**
 	 * Returns the nonce action for a post.
 	 *
-	 * @since 1.2.1
+	 * @since 1.3.0
 	 *
 	 * @param int $post_id Post ID.
 	 * @return string Nonce action.
