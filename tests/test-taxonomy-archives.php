@@ -37,8 +37,6 @@ class Test_Tempus_Taxonomy_Archives extends WP_UnitTestCase {
 				'rewrite' => array( 'slug' => 'topic' ),
 			)
 		);
-		Tempus_On_This_Day::taxonomy_rewrite_rules();
-		Tempus_This_Week::taxonomy_rewrite_rules();
 		flush_rewrite_rules( false );
 
 		$this->today = new DateTimeImmutable( 'now', wp_timezone() );
@@ -137,9 +135,25 @@ class Test_Tempus_Taxonomy_Archives extends WP_UnitTestCase {
 		return wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' );
 	}
 
-	public function test_rules_are_registered_late_on_init() {
-		$this->assertSame( 99, has_action( 'init', array( 'Tempus_On_This_Day', 'taxonomy_rewrite_rules' ) ) );
-		$this->assertSame( 99, has_action( 'init', array( 'Tempus_This_Week', 'taxonomy_rewrite_rules' ) ) );
+	public function test_rules_are_added_when_rules_are_generated() {
+		$this->assertSame( 10, has_filter( 'rewrite_rules_array', array( 'Tempus_On_This_Day', 'taxonomy_rewrite_rules' ) ) );
+		$this->assertSame( 10, has_filter( 'rewrite_rules_array', array( 'Tempus_This_Week', 'taxonomy_rewrite_rules' ) ) );
+		$rules = array_keys( get_option( 'rewrite_rules' ) );
+		$this->assertLessThan(
+			array_search( 'category/(.+?)/?$', $rules, true ),
+			array_search( 'category/(.+?)/onthisday/?$', $rules, true ),
+			'The On This Day rule comes before the category catch-all.'
+		);
+	}
+
+	public function test_rules_win_when_category_rules_were_generated_first() {
+		global $wp_rewrite;
+		// Rules generated earlier in the same request leave the category catch-all at the top.
+		$wp_rewrite->extra_rules_top = array_merge( array( 'category/(.+?)/?$' => 'index.php?category_name=$matches[1]' ), $wp_rewrite->extra_rules_top );
+		flush_rewrite_rules( false );
+		$this->go_to( home_url( '/category/news/onthisday/' ) );
+		$this->assertTrue( Tempus_On_This_Day::is_onthisday() );
+		$this->assertSame( 'news', get_query_var( 'category_name' ) );
 	}
 
 	public function test_taxonomy_archive_regexes() {
