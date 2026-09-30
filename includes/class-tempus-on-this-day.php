@@ -1,10 +1,25 @@
 <?php
 /**
- * On This Day Class
+ * On This Day archives.
  *
- * Adds On This Day functionality
+ * @package TempusFugit
+ * @since 1.0.0
+ */
+
+/**
+ * Adds On This Day archives.
+ *
+ * `/onthisday` lists posts from today's date in previous years, and `/onthisday/MM/DD`
+ * lists posts from that date in every year.
+ *
+ * @since 1.0.0
  */
 class Tempus_On_This_Day {
+	/**
+	 * Registers the hooks for On This Day archives.
+	 *
+	 * @since 1.0.0
+	 */
 	public function __construct() {
 		add_action( 'plugins_loaded', array( __CLASS__, 'plugins_loaded' ) );
 		add_filter( 'pre_get_posts', array( __CLASS__, 'pre_get_posts' ) );
@@ -13,19 +28,60 @@ class Tempus_On_This_Day {
 		add_filter( 'query_vars', array( __CLASS__, 'query_vars' ) );
 	}
 
+	/**
+	 * Registers the rewrite rules.
+	 *
+	 * Hooked to `plugins_loaded`. Instances are created on `init`, after that action
+	 * has fired, so this currently never runs; `Tempus_Fugit_Plugin::init()` calls
+	 * `rewrite_rules()` directly.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function plugins_loaded() {
 		self::rewrite_rules();
 	}
 
+	/**
+	 * Adds the `onthisday` public query var.
+	 *
+	 * Hooked to `query_vars`.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string[] $var Public query vars.
+	 * @return string[] Public query vars.
+	 */
 	public static function query_vars( $var ) {
 		$var[] = 'onthisday';
 		return $var;
 	}
 
+	/**
+	 * Returns the URL slug for On This Day archives.
+	 *
+	 * @since 1.0.2
+	 *
+	 * @return string Archive slug.
+	 */
 	public static function get_slug() {
+		/**
+		 * Filters the URL slug for On This Day archives.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $slug Archive slug. Default 'onthisday'.
+		 */
 		return apply_filters( 'tempus_fugit_onthisday_slug', 'onthisday' );
 	}
 
+	/**
+	 * Returns the URL of today's On This Day archive.
+	 *
+	 * @since 1.0.2
+	 *
+	 * @param int|null $blog_id Optional. Site ID. Default null (the current site).
+	 * @return string Archive URL.
+	 */
 	public static function get_link( $blog_id = null ) {
 		if ( is_multisite() && get_blog_option( $blog_id, 'permalink_structure' ) || get_option( 'permalink_structure' ) ) {
 				global $wp_rewrite;
@@ -48,10 +104,18 @@ class Tempus_On_This_Day {
 		return $url;
 	}
 
+	/**
+	 * Registers the On This Day rules, with feeds and pagination.
+	 *
+	 * Also adds map views when the Simple Location plugin is active, and photo views when
+	 * Post Kinds is active as well.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function rewrite_rules() {
 		$onthisday_slug = self::get_slug();
 
-		// On This Specific Day.
+		// On This Day for a specific date.
 		add_rewrite_rule(
 			sprintf( '%1$s/([0-9]{2})/([0-9]{2})/%2$s', $onthisday_slug, tempus_get_pagination_regex() ),
 			'index.php?onthisday=1&monthnum=$matches[1]&day=$matches[2]&paged=$matches[3]',
@@ -63,7 +127,7 @@ class Tempus_On_This_Day {
 			'top'
 		);
 
-		// On This Day Today.
+		// Today's On This Day archive.
 		add_rewrite_rule(
 			$onthisday_slug . '/feed/?$',
 			'index.php?feed=' . get_default_feed() . '&onthisday=1',
@@ -99,7 +163,7 @@ class Tempus_On_This_Day {
 				'index.php?monthnum=$matches[1]&day=$matches[2]&map=1',
 				'top'
 			);
-			// On This Day Today Map with Pagination
+			// On This Day map, paginated.
 			add_rewrite_rule(
 				$onthisday_slug . '/map/' . tempus_get_pagination_regex(),
 				'index.php?onthisday=1&paged=$matches[1]&map=1',
@@ -107,7 +171,7 @@ class Tempus_On_This_Day {
 			);
 
 			if ( class_exists( 'Simple_Location_Plugin' ) ) {
-				// On This Day Today Map.
+				// On This Day map.
 				add_rewrite_rule(
 					$onthisday_slug . '/map/?$',
 					'index.php?onthisday=1&map=1',
@@ -116,6 +180,7 @@ class Tempus_On_This_Day {
 			}
 
 			if ( class_exists( 'Post_Kinds_Plugin' ) ) {
+				/** This filter is documented in the Post Kinds plugin. */
 				$kind_photos_slug = apply_filters( 'kind_photos_slug', 'photos' );
 				add_rewrite_rule(
 					$onthisday_slug . '/' . $kind_photos_slug . '/' . tempus_get_pagination_regex(),
@@ -132,13 +197,23 @@ class Tempus_On_This_Day {
 		}
 	}
 
+	/**
+	 * Turns an `/onthisday` request into a query for today's month and day in previous years.
+	 *
+	 * Hooked to `pre_get_posts`. Only affects the main query on the front end.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param WP_Query $query The query being prepared.
+	 * @return WP_Query|void The query, or nothing for requests that are skipped.
+	 */
 	public static function pre_get_posts( $query ) {
-		// check if the user is requesting an admin page
+		// Only change the main query on the front end.
 		if ( is_admin() || ! $query->is_main_query() ) {
 			return;
 		}
 		$onthisday = get_query_var( 'onthisday' );
-		// Return if  not set
+		// Only when no specific date was requested.
 		if ( $onthisday && empty( get_query_var( 'year' ) ) && empty( get_query_var( 'monthnum' ) ) && empty( get_query_var( 'day' ) ) ) {
 			$now                    = new DateTime( 'now', wp_timezone() );
 			$query->is_date         = true;
@@ -160,21 +235,32 @@ class Tempus_On_This_Day {
 		return $query;
 	}
 
+	/**
+	 * Whether the current request is an On This Day archive (a day archive without a year).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool True for an On This Day archive.
+	 */
 	public static function is_onthisday() {
 		return ( is_day() && empty( get_query_var( 'year' ) ) );
 	}
 
+	/**
+	 * Sets the archive title for On This Day archives, such as "On This Day: March 15".
+	 *
+	 * Hooked to `get_the_archive_title`.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $title Archive title.
+	 * @return string Archive title.
+	 */
 	public static function archive_title( $title ) {
 		if ( self::is_onthisday() ) {
 			$title  = get_the_date( _x( 'F j', 'daily archives date format', 'default' ) );
 			$prefix = _x( 'On This Day:', 'date archive title prefix', 'default' );
-			/**
-			 * Filters the archive title prefix.
-			 *
-			 * @since 5.5.0
-			 *
-			 * @param string $prefix Archive title prefix.
-			 */
+			/** This filter is documented in wp-includes/general-template.php */
 			$prefix = apply_filters( 'get_the_archive_title_prefix', $prefix );
 			if ( $prefix ) {
 				$title = sprintf(
@@ -188,6 +274,16 @@ class Tempus_On_This_Day {
 		return $title;
 	}
 
+	/**
+	 * Sets the document title for On This Day archives to the date.
+	 *
+	 * Hooked to `document_title_parts`.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $title Document title parts.
+	 * @return array Document title parts.
+	 */
 	public static function title_parts( $title ) {
 		if ( self::is_onthisday() ) {
 			$title['title'] = get_the_date();

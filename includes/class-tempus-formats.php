@@ -1,18 +1,50 @@
 <?php
 /**
- * Time Formats
+ * Date formats.
  *
- * This Allows for Automatic Changing of the Date and Time Functionality Default Format Based on Various Factors.
+ * @package TempusFugit
+ * @since 1.0.9
+ */
+
+/**
+ * Changes the default date format on date archives to suit the archive type.
+ *
+ * Not currently loaded by the plugin.
+ *
+ * @since 1.0.9
  */
 class Tempus_Formats {
+	/**
+	 * Registers the date format hooks.
+	 *
+	 * @since 1.0.9
+	 */
 	public function __construct() {
 		add_filter( 'option_date_format', array( __CLASS__, 'date_format' ) );
 		add_action( 'admin_init', array( __CLASS__, 'admin_init' ) );
 	}
 
+	/**
+	 * Placeholder for admin settings. Currently does nothing.
+	 *
+	 * Hooked to `admin_init`.
+	 *
+	 * @since 1.0.9
+	 */
 	public static function admin_init() {
 	}
 
+	/**
+	 * Returns a date format suited to the date archive being viewed.
+	 *
+	 * Hooked to `option_date_format`. Leaves the format unchanged in the admin and outside
+	 * date archives.
+	 *
+	 * @since 1.0.9
+	 *
+	 * @param string $value The site's date format.
+	 * @return string Date format to use.
+	 */
 	public static function date_format( $value ) {
 		$old_value = $value;
 
@@ -27,7 +59,7 @@ class Tempus_Formats {
 		// If this is a On This Week archive.
 		if ( empty( get_query_var( 'year' ) ) && empty( get_query_var( 'monthnum' ) ) && ! empty( get_query_var( 'w' ) ) ) {
 			return $value;
-			// If this is a day archive.
+			// Otherwise, if this is a day archive.
 		} elseif ( is_day() ) {
 			// If this is an On This Day Archive.
 			if ( empty( get_query_var( 'year' ) ) ) {
@@ -44,6 +76,18 @@ class Tempus_Formats {
 	}
 
 
+	/**
+	 * Outputs radio buttons for choosing a date format on a settings screen.
+	 *
+	 * @since 1.0.9
+	 *
+	 * @param array $args {
+	 *     Field arguments.
+	 *
+	 *     @type string   $label_for    Name of the option being set.
+	 *     @type string[] $date_formats Date formats to offer.
+	 * }
+	 */
 	public static function date_format_callback( $args ) {
 		?>
 			<?php

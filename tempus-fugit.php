@@ -9,6 +9,8 @@
  * License: GPLv2 or later
  * Version: 1.2.0
  * Requires at least: 6.2
+ *
+ * @package TempusFugit
  */
 
 register_activation_hook( __FILE__, array( 'Tempus_Fugit_Plugin', 'activate' ) );
@@ -18,16 +20,31 @@ add_action( 'upgrader_process_complete', array( 'Tempus_Fugit_Plugin', 'upgrader
 add_action( 'plugins_loaded', array( 'Tempus_Fugit_Plugin', 'plugins_loaded' ) );
 add_action( 'init', array( 'Tempus_Fugit_Plugin', 'init' ) );
 
+/**
+ * Plugin bootstrap.
+ *
+ * Loads each feature, registers the widgets, and handles activation, deactivation, and upgrades.
+ *
+ * @since 1.0.0
+ */
 class Tempus_Fugit_Plugin {
 
+	/**
+	 * Registers the date sort filter and the widgets.
+	 *
+	 * Hooked to `plugins_loaded`. The widgets are skipped if the Post Kinds On This Day widget,
+	 * which they were ported from, is already loaded.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function plugins_loaded() {
 		add_filter( 'pre_get_posts', array( __CLASS__, 'date_sort' ) );
 
-		// As this is being ported from the Kind On This Day Widget do Not Load if it is Loaded.
+		// These widgets were ported from Post Kinds, so skip them if its On This Day widget is loaded.
 		if ( ! class_exists( 'Kind_OnThisDay_Widget' ) ) {
 			require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-onthisday-widget.php';
 			require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-thisweek-widget.php';
-			// Register Widgets
+			// Register the widgets.
 			add_action(
 				'widgets_init',
 				function () {
@@ -38,6 +55,13 @@ class Tempus_Fugit_Plugin {
 		}
 	}
 
+	/**
+	 * Loads the template functions and each feature class, and registers their rewrite rules.
+	 *
+	 * Hooked to `init`.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function init() {
 		require_once plugin_dir_path( __FILE__ ) . '/includes/rewrite-functions.php';
 		require_once plugin_dir_path( __FILE__ ) . '/includes/functions.php';
@@ -63,6 +87,22 @@ class Tempus_Fugit_Plugin {
 		Tempus_This_Week::rewrite_rules();
 	}
 
+	/**
+	 * Resets the rewrite rules after this plugin is updated.
+	 *
+	 * Hooked to `upgrader_process_complete`.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param WP_Upgrader $upgrade_object Upgrader instance.
+	 * @param array       $options        {
+	 *     Details of the update.
+	 *
+	 *     @type string   $action  Type of action, for example 'update'.
+	 *     @type string   $type    Type of item updated, for example 'plugin'.
+	 *     @type string[] $plugins Basenames of the plugins updated.
+	 * }
+	 */
 	public static function upgrader_process_complete( $upgrade_object, $options ) {
 		$current_plugin_path_name = plugin_basename( __FILE__ );
 		if ( ( 'update' === $options['action'] ) && ( 'plugin' === $options['type'] ) ) {
@@ -75,10 +115,20 @@ class Tempus_Fugit_Plugin {
 		}
 	}
 
+	/**
+	 * Activation hook. Resets the rewrite rules so they are rebuilt with this plugin's rules.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function activate() {
 		self::reset_rewrite_rules();
 	}
 
+	/**
+	 * Deactivation hook. Resets the rewrite rules so they are rebuilt without this plugin's rules.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function deactivate() {
 		self::reset_rewrite_rules();
 	}
@@ -97,18 +147,29 @@ class Tempus_Fugit_Plugin {
 		delete_option( 'rewrite_rules' );
 	}
 
+	/**
+	 * Sorts date archives for a specific year, and series archives, from oldest to newest.
+	 *
+	 * Hooked to `pre_get_posts`. Only affects the main query on the front end. On This Day
+	 * archives have no year, so they keep the default newest-first order.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param WP_Query $query The query being prepared.
+	 * @return WP_Query|void The modified query, or nothing for admin and secondary queries.
+	 */
 	public static function date_sort( $query ) {
-		// check if the user is requesting an admin page
+		// Only change the main query on the front end.
 		if ( is_admin() || ! $query->is_main_query() ) {
 			return;
 		}
 
-		// If this is a date archive but if there is no year indicating it is an On This Day, where you want to go backward.
+		// Sort date archives for a specific year oldest first. On This Day archives have no year and keep newest first.
 		if ( is_date() && ! empty( $query->get( 'year' ) ) ) {
 			$query->set( 'order', 'ASC' );
 		}
 
-		// If the default is a series then it should be in ascending order.
+		// Series archives read in order, oldest first.
 		if ( is_tax( 'series' ) ) {
 			$query->set( 'order', 'ASC' );
 		}
@@ -117,9 +178,13 @@ class Tempus_Fugit_Plugin {
 	}
 
 	/**
-	 * Generic Filter Set of HTML paramaters for KSES
+	 * Returns the HTML elements and attributes allowed in widget output.
 	 *
-	 * @return return array Array of HTML elements.
+	 * Used with `wp_kses()`.
+	 *
+	 * @since 1.0.9
+	 *
+	 * @return array Allowed HTML, keyed by element name, with arrays of allowed attributes.
 	 */
 	public static function kses_clean() {
 		return array(

@@ -1,26 +1,40 @@
 <?php
+/**
+ * This Week widget.
+ *
+ * @package TempusFugit
+ * @since 1.0.3
+ */
 
+/**
+ * Widget listing posts published in the current week number in previous years, grouped by how long ago.
+ *
+ * @since 1.0.3
+ */
 class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 	/**
-	 * Register widget with WordPress.
+	 * Sets up the widget name and description.
+	 *
+	 * @since 1.0.3
 	 */
 	public function __construct() {
 		WP_Widget::__construct(
-			'Tempus_ThisWeek_Widget',                // Base ID
-			__( 'This Week Widget', 'tempus-fugit' ),        // Name
+			'Tempus_ThisWeek_Widget', // Base ID.
+			__( 'This Week Widget', 'tempus-fugit' ), // Name.
 			array(
 				'classname'   => 'thisweek_widget',
 				'description' => __( 'A widget that allows you to display a list of posts from this week in history', 'tempus-fugit' ),
 			)
 		);
-	} // end constructor
+	}
 
 	/**
-	 * Set Defaults.
+	 * Fills in default settings.
 	 *
-	 * @param array $instance Instance variable.
-	 * @return array Instance after defaults added.
+	 * @since 1.0.3
 	 *
+	 * @param array $instance Widget settings.
+	 * @return array Widget settings with defaults for 'title', 'number', and 'nonefound'.
 	 */
 	public function defaults( $instance ) {
 		$defaults = array(
@@ -32,12 +46,17 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 	}
 
 	/**
-	 * Front-end display of widget.
+	 * Outputs the widget on the front end.
+	 *
+	 * Results are cached in a transient for an hour.
+	 *
+	 * @since 1.0.3
 	 *
 	 * @see WP_Widget::widget()
 	 *
-	 * @param array $args     Widget arguments.
-	 * @param array $instance Saved values from database.
+	 * @param array $args     Display arguments, including 'before_title', 'after_title',
+	 *                        'before_widget', and 'after_widget'.
+	 * @param array $instance Widget settings.
 	 */
 	public function widget( $args, $instance ) {
 		$instance = $this->defaults( $instance );
@@ -45,7 +64,7 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 		/** This filter is documented in wp-includes/widgets/class-wp-widget-pages.php */
 		$title = apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base );
 
-		//$date = new DateTime( '2020-01-01' ); // Uncomment for testing
+		// $date = new DateTime( '2020-01-01' ); // Uncomment for testing.
 		$date = new DateTime( 'now', wp_timezone() );
 		echo $args['before_widget']; // phpcs:ignore
 		if ( ! empty( $instance['title'] ) ) {
