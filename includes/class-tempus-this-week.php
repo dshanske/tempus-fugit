@@ -26,8 +26,8 @@ class Tempus_This_Week {
 	public function __construct() {
 		add_action( 'plugins_loaded', array( __CLASS__, 'plugins_loaded' ) );
 		add_filter( 'pre_get_posts', array( __CLASS__, 'pre_get_posts' ) );
-		// Late, so taxonomies registered by other plugins on init are included.
-		add_action( 'init', array( __CLASS__, 'taxonomy_rewrite_rules' ), 99 );
+		// Added when the rules are generated, ahead of each taxonomy's own catch-all rules.
+		add_filter( 'rewrite_rules_array', array( __CLASS__, 'taxonomy_rewrite_rules' ) );
 		add_filter( 'posts_where', array( __CLASS__, 'posts_where' ), 10, 2 );
 		add_filter( 'get_the_archive_title', array( __CLASS__, 'archive_title' ) );
 		add_filter( 'document_title_parts', array( __CLASS__, 'title_parts' ) );
@@ -231,25 +231,28 @@ class Tempus_This_Week {
 	 * Adds `/tag/foo/thisweek/`, `/category/news/thisweek/11/`, and the like, with feeds and
 	 * pagination. Uses each taxonomy's own permalink base.
 	 *
-	 * Hooked to `init` at priority 99.
+	 * Hooked to `rewrite_rules_array`, so the rules are built from the taxonomies registered when
+	 * the rules are generated, and always come before each taxonomy's own rules. Otherwise a
+	 * category rule such as `category/(.+?)/?$` could match `/category/news/onthisday/` first.
 	 *
 	 * @since 1.2.1
+	 *
+	 * @param string[] $rules Rewrite rules, keyed by regex.
+	 * @return string[] Rewrite rules with the taxonomy archive rules first.
 	 */
-	public static function taxonomy_rewrite_rules() {
-		$slug = self::get_slug();
+	public static function taxonomy_rewrite_rules( $rules ) {
+		$slug           = self::get_slug();
+		$taxonomy_rules = array();
 		foreach ( tempus_get_taxonomy_archive_regexes() as $base => $query_var ) {
 			$query = 'index.php?' . $query_var . '=$matches[1]&thisweek=1';
-			add_rewrite_rule(
-				sprintf( '%1$s/%2$s/([0-9]{2})/%3$s', $base, $slug, tempus_get_pagination_regex() ),
-				$query . '&w=$matches[2]&paged=$matches[3]',
-				'top'
-			);
-			add_rewrite_rule( $base . '/' . $slug . '/([0-9]{2})/?$', $query . '&w=$matches[2]', 'top' );
-			add_rewrite_rule( $base . '/' . $slug . '/feed/?$', $query . '&feed=' . get_default_feed(), 'top' );
-			add_rewrite_rule( $base . '/' . $slug . '/' . tempus_get_feed_regex(), $query . '&feed=$matches[2]', 'top' );
-			add_rewrite_rule( $base . '/' . $slug . '/' . tempus_get_pagination_regex(), $query . '&paged=$matches[2]', 'top' );
-			add_rewrite_rule( $base . '/' . $slug . '/?$', $query, 'top' );
+			$taxonomy_rules[ sprintf( '%1$s/%2$s/([0-9]{2})/%3$s', $base, $slug, tempus_get_pagination_regex() ) ] = $query . '&w=$matches[2]&paged=$matches[3]';
+			$taxonomy_rules[ $base . '/' . $slug . '/([0-9]{2})/?$' ]                    = $query . '&w=$matches[2]';
+			$taxonomy_rules[ $base . '/' . $slug . '/feed/?$' ]                          = $query . '&feed=' . get_default_feed();
+			$taxonomy_rules[ $base . '/' . $slug . '/' . tempus_get_feed_regex() ]       = $query . '&feed=$matches[2]';
+			$taxonomy_rules[ $base . '/' . $slug . '/' . tempus_get_pagination_regex() ] = $query . '&paged=$matches[2]';
+			$taxonomy_rules[ $base . '/' . $slug . '/?$' ]                               = $query;
 		}
+		return array_merge( $taxonomy_rules, $rules );
 	}
 
 	/**
