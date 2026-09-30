@@ -1,26 +1,40 @@
 <?php
+/**
+ * On This Day widget.
+ *
+ * @package TempusFugit
+ * @since 1.0.0
+ */
 
+/**
+ * Widget listing posts published on today's date in previous years, grouped by how long ago.
+ *
+ * @since 1.0.0
+ */
 class Tempus_OnThisDay_Widget extends WP_Widget {
 	/**
-	 * Register widget with WordPress.
+	 * Sets up the widget name and description.
+	 *
+	 * @since 1.0.0
 	 */
 	public function __construct() {
 		parent::__construct(
-			'Tempus_OnThisDay_Widget',                // Base ID
-			__( 'On This Day Widget', 'tempus-fugit' ),        // Name
+			'Tempus_OnThisDay_Widget', // Base ID.
+			__( 'On This Day Widget', 'tempus-fugit' ), // Name.
 			array(
 				'classname'   => 'onthisday_widget',
 				'description' => __( 'A widget that allows you to display a list of posts from this day in history', 'tempus-fugit' ),
 			)
 		);
-	} // end constructor
+	}
 
 	/**
-	 * Set Defaults.
+	 * Fills in default settings.
 	 *
-	 * @param array $instance Instance variable.
-	 * @return array Instance after defaults added.
+	 * @since 1.0.0
 	 *
+	 * @param array $instance Widget settings.
+	 * @return array Widget settings with defaults for 'title', 'number', and 'nonefound'.
 	 */
 	public function defaults( $instance ) {
 		$defaults = array(
@@ -32,12 +46,17 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Front-end display of widget.
+	 * Outputs the widget on the front end.
+	 *
+	 * Results are cached in a transient for an hour.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @see WP_Widget::widget()
 	 *
-	 * @param array $args     Widget arguments.
-	 * @param array $instance Saved values from database.
+	 * @param array $args     Display arguments, including 'before_title', 'after_title',
+	 *                        'before_widget', and 'after_widget'.
+	 * @param array $instance Widget settings.
 	 */
 	public function widget( $args, $instance ) {
 		$instance = $this->defaults( $instance );
@@ -45,7 +64,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 		/** This filter is documented in wp-includes/widgets/class-wp-widget-pages.php */
 		$title = apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base );
 
-		// $date = new DateTime( '2020-01-01' ); // Uncomment for testing
+		// $date = new DateTime( '2020-01-01' ); // Uncomment for testing.
 		$date = new DateTime( 'now', wp_timezone() );
 		echo $args['before_widget']; // phpcs:ignore
 		if ( $title ) {
@@ -97,10 +116,12 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	}
 
 	/**
-	 * @access public
+	 * Returns a list item linking to a post.
 	 *
-	 * @param WP_Post $post Post object
-	 * @return string
+	 * @since 1.0.0
+	 *
+	 * @param int|WP_Post $post Post ID or post object.
+	 * @return string List item HTML.
 	 */
 	public function list_item( $post ) {
 		$post = get_post( $post );
@@ -108,12 +129,12 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Construct a title for the post link.
+	 * Returns the text to use for a post's link.
 	 *
-	 * @access public
+	 * @since 1.0.0
 	 *
-	 * @param WP_Post $post Post object.
-	 * @return string
+	 * @param int|WP_Post $post Post ID or post object.
+	 * @return string Link text.
 	 */
 	public function get_the_title( $post ) {
 		$post = get_post( $post );
@@ -126,19 +147,31 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 		} else {
 			$title = get_the_date( 'Y ' . get_option( 'time_format' ), $post );
 		}
+		/**
+		 * Filters the text used as the title of a post in the widget.
+		 *
+		 * The default is the post title, then the excerpt, then the first 40 characters of the
+		 * content, then the post's year and time.
+		 *
+		 * @since 1.0.3
+		 *
+		 * @param string  $title Text to display for the post.
+		 * @param WP_Post $post  The post.
+		 */
 		$title = apply_filters( 'tempus_widget_post_title', $title, $post );
 		return trim( $title );
 	}
 
 	/**
-	 * Sanitize widget form values as they are saved.
+	 * Sanitizes widget settings as they are saved.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @see WP_Widget::update()
 	 *
-	 * @param array $new_instance Values just sent to be saved.
-	 * @param array $old_instance Previously saved values from database.
-	 *
-	 * @return array Updated safe values to be saved.
+	 * @param array $new_instance New settings from the form.
+	 * @param array $old_instance Previously saved settings.
+	 * @return array Settings to save.
 	 */
 	public function update( $new_instance, $old_instance ) {
 		array_walk_recursive( $new_instance, 'sanitize_text_field' );
@@ -147,11 +180,13 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 
 
 	/**
-	 * Create the form for the Widget admin
+	 * Outputs the widget settings form.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @see WP_Widget::form()
 	 *
-	 * @param array $instance Previously saved values from database.
+	 * @param array $instance Current settings.
 	 */
 	public function form( $instance ) {
 		$instance = $this->defaults( $instance );

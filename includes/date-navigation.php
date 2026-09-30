@@ -1,8 +1,25 @@
 <?php
 /**
- * Date Navigation Functions
+ * Date navigation template functions.
+ *
+ * Previous and next links between day, month, and year archives.
+ *
+ * @package TempusFugit
+ * @since 1.2.0
  */
 
+/**
+ * Returns a link to the previous or next day, month, or year archive.
+ *
+ * The period matches the archive being viewed. No link is returned for a date in the future.
+ *
+ * @since 1.2.0
+ *
+ * @param bool $previous Optional. Whether to link to the previous period (true) or the next (false).
+ *                       Default true.
+ * @return string|false Anchor tag HTML, an empty string if the adjacent period is in the future,
+ *                      or false if this is not a day, month, or year archive.
+ */
 function tempus_get_adjacent_date_link( $previous = true ) {
 	if ( ! is_date() ) {
 		return false;
@@ -39,6 +56,27 @@ function tempus_get_adjacent_date_link( $previous = true ) {
 	return $string;
 }
 
+/**
+ * Returns previous/next navigation markup for a date archive.
+ *
+ * Mirrors the markup of core's `get_the_post_navigation()`.
+ *
+ * @since 1.2.0
+ *
+ * @param array $args {
+ *     Optional. Navigation arguments. Default empty array.
+ *
+ *     @type string $prev_text          Previous link text. Not currently used. Default '%title'.
+ *     @type string $next_text          Next link text. Not currently used. Default '%title'.
+ *     @type bool   $in_same_term       Not currently used. Default false.
+ *     @type string $screen_reader_text Screen reader text for the nav heading. Not currently applied;
+ *                                      the heading is always 'Date navigation'.
+ *     @type string $aria_label         ARIA label for the nav element. Not currently applied;
+ *                                      the label is always 'Date navigation'.
+ *     @type string $class              Custom class for the nav element. Default 'date-navigation'.
+ * }
+ * @return string Navigation markup.
+ */
 function tempus_get_the_date_navigation( $args = array() ) {
 	// Make sure the nav element has an aria-label attribute: fallback to the screen reader text.
 	if ( ! empty( $args['screen_reader_text'] ) && empty( $args['aria_label'] ) ) {

@@ -1,10 +1,22 @@
 <?php
 /**
- * Order By
+ * Sorted archives.
  *
- * Adds the ability to have Order By Permalinks
+ * @package TempusFugit
+ * @since 1.0.0
+ */
+
+/**
+ * Adds `/updated`, `/oldest`, and `/random` archives of all posts.
+ *
+ * @since 1.0.0
  */
 class Tempus_Order_By {
+	/**
+	 * Registers the hooks for sorted archives.
+	 *
+	 * @since 1.0.0
+	 */
 	public function __construct() {
 		add_action( 'plugins_loaded', array( __CLASS__, 'plugins_loaded' ) );
 		add_filter( 'pre_get_posts', array( __CLASS__, 'order_by' ) );
@@ -13,15 +25,39 @@ class Tempus_Order_By {
 		add_filter( 'document_title_parts', array( __CLASS__, 'title_parts' ) );
 	}
 
+	/**
+	 * Registers the rewrite rules.
+	 *
+	 * Hooked to `plugins_loaded`. Instances are created on `init`, after that action
+	 * has fired, so this currently never runs; `Tempus_Fugit_Plugin::init()` calls
+	 * `rewrite_rules()` directly.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function plugins_loaded() {
 		self::rewrite_rules();
 	}
 
+	/**
+	 * Adds the `sort` public query var.
+	 *
+	 * Hooked to `query_vars`.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string[] $var Public query vars.
+	 * @return string[] Public query vars.
+	 */
 	public static function query_vars( $var ) {
 		$var[] = 'sort';
 		return $var;
 	}
 
+	/**
+	 * Registers the rules for `/updated`, `/oldest`, and `/random`, with feeds and pagination.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function rewrite_rules() {
 		$sort = '(updated|oldest|random)/';
 		add_rewrite_rule(
@@ -48,8 +84,18 @@ class Tempus_Order_By {
 		);
 	}
 
+	/**
+	 * Applies the order requested by the `sort` query var.
+	 *
+	 * Hooked to `pre_get_posts`. Skips admin requests.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param WP_Query $query The query being prepared.
+	 * @return WP_Query|void The query, or nothing for requests that are skipped.
+	 */
 	public static function order_by( $query ) {
-		// check if the user is requesting an admin page
+		// Skip admin requests.
 		if ( is_admin() ) {
 			return;
 		}
@@ -70,6 +116,16 @@ class Tempus_Order_By {
 	}
 
 
+	/**
+	 * Sets the archive title for sorted archives, such as "Last Updated".
+	 *
+	 * Hooked to `get_the_archive_title`.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $title Archive title.
+	 * @return string Archive title.
+	 */
 	public static function archive_title( $title ) {
 		$sort = get_query_var( 'sort' );
 		if ( $sort ) {
@@ -81,6 +137,14 @@ class Tempus_Order_By {
 		return $title;
 	}
 
+	/**
+	 * Returns the title for a sort type.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $sort Sort type: 'updated', 'random', or 'oldest'.
+	 * @return string Title, or an empty string for an unknown sort type.
+	 */
 	public static function title( $sort ) {
 		$title = '';
 		if ( 'updated' === $sort ) {
@@ -93,6 +157,16 @@ class Tempus_Order_By {
 		return $title;
 	}
 
+	/**
+	 * Sets the document title for sorted archives.
+	 *
+	 * Hooked to `document_title_parts`.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $title Document title parts.
+	 * @return array Document title parts.
+	 */
 	public static function title_parts( $title ) {
 		$sort = get_query_var( 'sort' );
 		if ( $sort ) {

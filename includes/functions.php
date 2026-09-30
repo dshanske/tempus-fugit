@@ -1,6 +1,26 @@
 <?php
 /**
- * Global Functions
+ * Template functions.
+ *
+ * Public helpers for themes: links to a post's day and week archives, and
+ * information about the date archive being viewed.
+ *
+ * @package TempusFugit
+ * @since 1.0.2
+ */
+
+/**
+ * Returns the URL of the day archive for a post's publish date.
+ *
+ * Uses the site's date permalink structure, including the `%dayofyear%` tag,
+ * and falls back to a `?m=YYYYMMDD` query URL when pretty permalinks are off.
+ *
+ * @since 1.0.2
+ *
+ * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
+ *
+ * @param int|WP_Post|null $post Optional. Post ID or post object. Default is the current post.
+ * @return string Day archive URL.
  */
 function tempus_get_post_day_link( $post = null ) {
 	$post = get_post( $post ); // Allows support of current post and post ID.
@@ -23,6 +43,14 @@ function tempus_get_post_day_link( $post = null ) {
 	return $daylink;
 }
 
+/**
+ * Returns the URL of the week archive (`/YYYY/Www/`) for a post's publish date.
+ *
+ * @since 1.1.2
+ *
+ * @param int|WP_Post|null $post Optional. Post ID or post object. Default is the current post.
+ * @return string Week archive URL.
+ */
 function tempus_get_post_week_link( $post = null ) {
 	$post     = get_post( $post ); // Allows support of current post and post ID.
 	$weeklink = '%year%/W%week%';
@@ -43,8 +71,15 @@ function tempus_get_post_week_link( $post = null ) {
 
 
 
-/*
- * Returns the date of the current archive
+/**
+ * Returns the date parts of the date archive being viewed.
+ *
+ * Combines the date query vars with any `date_query` set on the main query.
+ *
+ * @since 1.2.0
+ *
+ * @return array|false Non-empty date parts keyed by name (for example 'year', 'monthnum',
+ *                     'day', 'dayofyear'), or false if this is not a date archive.
  */
 function tempus_get_archive_date_query() {
 	if ( ! is_date() ) {
@@ -63,6 +98,14 @@ function tempus_get_archive_date_query() {
 	return array_filter( $return );
 }
 
+/**
+ * Returns the date of the day, month, or year archive being viewed.
+ *
+ * @since 1.2.0
+ *
+ * @return DateTime|false Archive date in the site's timezone, or false if this is not a
+ *                        day, month, or year archive.
+ */
 function tempus_get_archive_datetime() {
 	if ( ! is_date() ) {
 		return false;
