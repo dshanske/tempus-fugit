@@ -187,6 +187,8 @@ class Test_Tempus_Widgets extends WP_UnitTestCase {
 				'title'     => '',
 				'number'    => 5,
 				'nonefound' => '',
+				'taxonomy'  => '',
+				'term'      => '',
 			),
 			$widget->update( array(), array() )
 		);

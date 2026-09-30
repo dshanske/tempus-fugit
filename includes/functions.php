@@ -140,3 +140,18 @@ function tempus_get_archive_datetime() {
 	}
 	return false;
 }
+
+/**
+ * Returns the name of the term being viewed on a category, tag, or taxonomy archive.
+ *
+ * @since 1.2.1
+ *
+ * @return string Term name, or an empty string outside term archives.
+ */
+function tempus_get_queried_term_name() {
+	if ( ! is_category() && ! is_tag() && ! is_tax() ) {
+		return '';
+	}
+	$term = get_queried_object();
+	return ( $term instanceof WP_Term ) ? $term->name : '';
+}

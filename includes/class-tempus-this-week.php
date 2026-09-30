@@ -26,6 +26,8 @@ class Tempus_This_Week {
 	public function __construct() {
 		add_action( 'plugins_loaded', array( __CLASS__, 'plugins_loaded' ) );
 		add_filter( 'pre_get_posts', array( __CLASS__, 'pre_get_posts' ) );
+		// Late, so taxonomies registered by other plugins on init are included.
+		add_action( 'init', array( __CLASS__, 'taxonomy_rewrite_rules' ), 99 );
 		add_filter( 'posts_where', array( __CLASS__, 'posts_where' ), 10, 2 );
 		add_filter( 'get_the_archive_title', array( __CLASS__, 'archive_title' ) );
 		add_filter( 'document_title_parts', array( __CLASS__, 'title_parts' ) );
@@ -201,6 +203,56 @@ class Tempus_This_Week {
 	}
 
 	/**
+	 * Returns the URL of the current This Week archive for a category, tag, or other term.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param WP_Term|int|string $term     Term object, ID, or slug.
+	 * @param string             $taxonomy Optional. Taxonomy name. Required when `$term` is a slug.
+	 * @return string Archive URL, or an empty string if the term doesn't exist.
+	 */
+	public static function get_term_archive_link( $term, $taxonomy = '' ) {
+		global $wp_rewrite;
+		$term = ( is_string( $term ) && ! is_numeric( $term ) ) ? get_term_by( 'slug', $term, $taxonomy ) : get_term( $term, $taxonomy );
+		if ( ! $term instanceof WP_Term ) {
+			return '';
+		}
+		// The term exists, so this is a URL rather than an error.
+		$link = get_term_link( $term );
+		if ( $wp_rewrite->get_extra_permastruct( $term->taxonomy ) ) {
+			return user_trailingslashit( trailingslashit( $link ) . self::get_slug() );
+		}
+		return add_query_arg( 'thisweek', 1, $link );
+	}
+
+	/**
+	 * Registers This Week rules for the term archives of every public taxonomy.
+	 *
+	 * Adds `/tag/foo/thisweek/`, `/category/news/thisweek/11/`, and the like, with feeds and
+	 * pagination. Uses each taxonomy's own permalink base.
+	 *
+	 * Hooked to `init` at priority 99.
+	 *
+	 * @since 1.2.1
+	 */
+	public static function taxonomy_rewrite_rules() {
+		$slug = self::get_slug();
+		foreach ( tempus_get_taxonomy_archive_regexes() as $base => $query_var ) {
+			$query = 'index.php?' . $query_var . '=$matches[1]&thisweek=1';
+			add_rewrite_rule(
+				sprintf( '%1$s/%2$s/([0-9]{2})/%3$s', $base, $slug, tempus_get_pagination_regex() ),
+				$query . '&w=$matches[2]&paged=$matches[3]',
+				'top'
+			);
+			add_rewrite_rule( $base . '/' . $slug . '/([0-9]{2})/?$', $query . '&w=$matches[2]', 'top' );
+			add_rewrite_rule( $base . '/' . $slug . '/feed/?$', $query . '&feed=' . get_default_feed(), 'top' );
+			add_rewrite_rule( $base . '/' . $slug . '/' . tempus_get_feed_regex(), $query . '&feed=$matches[2]', 'top' );
+			add_rewrite_rule( $base . '/' . $slug . '/' . tempus_get_pagination_regex(), $query . '&paged=$matches[2]', 'top' );
+			add_rewrite_rule( $base . '/' . $slug . '/?$', $query, 'top' );
+		}
+	}
+
+	/**
 	 * Turns a This Week request into a query for an ISO-8601 week number.
 	 *
 	 * `/thisweek` uses the current week and only lists posts from before this week began.
@@ -301,6 +353,8 @@ class Tempus_This_Week {
 	/**
 	 * Sets the archive title for This Week archives, such as "Week: 12".
 	 *
+	 * On a term archive the term is included, such as "Week in Travel: 12".
+	 *
 	 * Hooked to `get_the_archive_title`.
 	 *
 	 * @since 1.0.3
@@ -310,8 +364,14 @@ class Tempus_This_Week {
 	 */
 	public static function archive_title( $title ) {
 		if ( self::is_thisweek() ) {
-			$title  = get_the_date( _x( 'W', 'weekly archives date format', 'tempus-fugit' ) );
-			$prefix = _x( 'Week:', 'date archive title prefix', 'tempus-fugit' );
+			$title = get_the_date( _x( 'W', 'weekly archives date format', 'tempus-fugit' ) );
+			$term  = tempus_get_queried_term_name();
+			if ( $term ) {
+				/* translators: %s: Category, tag, or other term name. */
+				$prefix = sprintf( _x( 'Week in %s:', 'date archive title prefix', 'tempus-fugit' ), $term );
+			} else {
+				$prefix = _x( 'Week:', 'date archive title prefix', 'tempus-fugit' );
+			}
 			/** This filter is documented in wp-includes/general-template.php */
 			$prefix = apply_filters( 'get_the_archive_title_prefix', $prefix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter.
 			if ( $prefix ) {

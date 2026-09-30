@@ -36,21 +36,80 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 * @since 1.0.0
 	 *
 	 * @param array $instance Widget settings.
-	 * @return array Widget settings with defaults for 'title', 'number', and 'nonefound'.
+	 * @return array Widget settings with defaults for 'title', 'number', 'nonefound', 'taxonomy',
+	 *               and 'term'.
 	 */
 	public function defaults( $instance ) {
 		$defaults = array(
 			'title'     => '',
 			'number'    => 5,
 			'nonefound' => __( 'There were no posts on this day in previous years', 'tempus-fugit' ),
+			'taxonomy'  => '',
+			'term'      => '',
 		);
 		return wp_parse_args( $instance, $defaults );
 	}
 
 	/**
+	 * Returns the term the widget is limited to.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param array $instance Widget settings.
+	 * @return WP_Term|false|null The term, false if the configured term doesn't exist, or null if
+	 *                            the widget isn't limited to a term.
+	 */
+	protected function get_widget_term( $instance ) {
+		if ( empty( $instance['taxonomy'] ) || empty( $instance['term'] ) ) {
+			return null;
+		}
+		$term = get_term_by( 'slug', $instance['term'], $instance['taxonomy'] );
+		return ( $term instanceof WP_Term ) ? $term : false;
+	}
+
+	/**
+	 * Returns posts for the widget, cached in a transient for an hour.
+	 *
+	 * The cache is separate for each widget, period, term, and number of posts.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param array              $query    Arguments for get_posts().
+	 * @param string             $period   The day or week being shown, such as '03-15' or '2026-W40'.
+	 * @param WP_Term|false|null $term     Term from get_widget_term().
+	 * @param array              $instance Widget settings.
+	 * @return int[] Post IDs.
+	 */
+	protected function get_widget_posts( $query, $period, $term, $instance ) {
+		if ( false === $term ) {
+			return array();
+		}
+		$number = max( 1, absint( $instance['number'] ) );
+		$key    = 'tempus_widget_' . md5( wp_json_encode( array( $this->id, $period, $term ? $term->term_id : 0, $number ) ) );
+		$posts  = get_transient( $key );
+		if ( false === $posts ) {
+			$query['numberposts'] = $number;
+			$query['fields']      = 'ids';
+			if ( $term ) {
+				$query['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Limited to the widget's term.
+					array(
+						'taxonomy' => $term->taxonomy,
+						'field'    => 'term_id',
+						'terms'    => $term->term_id,
+					),
+				);
+			}
+			$posts = get_posts( $query );
+			set_transient( $key, $posts, HOUR_IN_SECONDS );
+		}
+		return $posts;
+	}
+
+	/**
 	 * Outputs the widget on the front end.
 	 *
-	 * Results are cached in a transient for an hour.
+	 * Results are cached in a transient for an hour. When the widget is limited to a term, it
+	 * lists posts with that term and links to the term's On This Day archive.
 	 *
 	 * @since 1.0.0
 	 *
@@ -68,27 +127,26 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 
 		// $date = new DateTime( '2020-01-01' ); // Uncomment for testing.
 		$date = new DateTime( 'now', wp_timezone() );
+		$term = $this->get_widget_term( $instance );
+		$link = $term ? Tempus_On_This_Day::get_term_archive_link( $term ) : Tempus_On_This_Day::get_link();
 		echo $args['before_widget']; // phpcs:ignore
 		if ( $title ) {
-			echo wp_kses( $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', esc_url( Tempus_On_This_Day::get_link() ), $title ) . $args['after_title'], Tempus_Fugit_Plugin::kses_clean() );
+			echo wp_kses( $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', esc_url( $link ), $title ) . $args['after_title'], Tempus_Fugit_Plugin::kses_clean() );
 		}
-		$transient = 'onthisday_widget' . $date->format( 'm-d' );
-		$posts     = get_transient( $transient );
-		if ( false === $posts ) {
-			$query = array(
-				'day'         => $date->format( 'd' ),
-				'monthnum'    => $date->format( 'm' ),
-				'date_query'  => array(
+		$posts    = $this->get_widget_posts(
+			array(
+				'day'        => $date->format( 'd' ),
+				'monthnum'   => $date->format( 'm' ),
+				'date_query' => array(
 					array(
 						'before' => 'yesterday',
 					),
 				),
-				'numberposts' => max( 1, absint( $instance['number'] ) ),
-				'fields'      => 'ids',
-			);
-			$posts = get_posts( $query );
-		}
-		set_transient( $transient, $posts, HOUR_IN_SECONDS );
+			),
+			$date->format( 'm-d' ),
+			$term,
+			$instance
+		);
 		$organize = array();
 		foreach ( $posts as $post ) {
 			$diff = sprintf( '<a href="%1$s">%2$s</a>', esc_url( tempus_get_post_day_link( $post ) ), esc_html( human_time_diff( get_post_timestamp( $post ) ) ) );
@@ -180,7 +238,24 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 		$instance['title']     = isset( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '';
 		$instance['number']    = isset( $new_instance['number'] ) ? max( 1, absint( $new_instance['number'] ) ) : 5;
 		$instance['nonefound'] = isset( $new_instance['nonefound'] ) ? sanitize_textarea_field( $new_instance['nonefound'] ) : '';
+		$instance['taxonomy']  = '';
+		$instance['term']      = '';
+		if ( ! empty( $new_instance['taxonomy'] ) && array_key_exists( $new_instance['taxonomy'], self::get_taxonomy_options() ) ) {
+			$instance['taxonomy'] = $new_instance['taxonomy'];
+			$instance['term']     = isset( $new_instance['term'] ) ? sanitize_title( $new_instance['term'] ) : '';
+		}
 		return $instance;
+	}
+
+	/**
+	 * Returns the taxonomies a widget can be limited to.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @return string[] Taxonomy labels, keyed by taxonomy name.
+	 */
+	public static function get_taxonomy_options() {
+		return wp_list_pluck( get_taxonomies( array( 'public' => true ), 'objects' ), 'label', 'name' );
 	}
 
 
@@ -205,6 +280,15 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 		<p><label for="<?php echo esc_attr( $this->get_field_id( 'nonefound' ) ); ?>"><?php esc_html_e( 'Text if No Posts Found:', 'tempus-fugit' ); ?></label>
 		<textarea class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'nonefound' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'nonefound' ) ); ?>"><?php echo esc_textarea( $instance['nonefound'] ); ?></textarea>
 		</p>
+		<p><label for="<?php echo esc_attr( $this->get_field_id( 'taxonomy' ) ); ?>"><?php esc_html_e( 'Limit to:', 'tempus-fugit' ); ?></label>
+		<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'taxonomy' ) ); ?>">
+			<option value=""><?php esc_html_e( 'All posts', 'tempus-fugit' ); ?></option>
+			<?php foreach ( self::get_taxonomy_options() as $name => $label ) : ?>
+			<option value="<?php echo esc_attr( $name ); ?>" <?php selected( $instance['taxonomy'], $name ); ?>><?php echo esc_html( $label ); ?></option>
+			<?php endforeach; ?>
+		</select></p>
+		<p><label for="<?php echo esc_attr( $this->get_field_id( 'term' ) ); ?>"><?php esc_html_e( 'Term (slug):', 'tempus-fugit' ); ?></label>
+		<input type="text" class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'term' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'term' ) ); ?>" value="<?php echo esc_attr( $instance['term'] ); ?>" /></p>
 		<?php
 	}
 }

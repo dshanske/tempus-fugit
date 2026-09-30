@@ -179,6 +179,8 @@ class Test_Tempus_On_This_Day extends WP_UnitTestCase {
 				'title'     => 'Hello World',
 				'number'    => 3,
 				'nonefound' => "Line one\nnone",
+				'taxonomy'  => '',
+				'term'      => '',
 			),
 			$instance
 		);
