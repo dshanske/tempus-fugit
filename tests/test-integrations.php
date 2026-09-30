@@ -9,6 +9,11 @@
  */
 
 /**
+ * Stand-in for classes from other plugins. PHP before 8.3 can't alias built-in classes like stdClass.
+ */
+class Tempus_Test_Stand_In {}
+
+/**
  * Integration tests.
  */
 class Test_Tempus_Integrations extends WP_UnitTestCase {
@@ -22,7 +27,7 @@ class Test_Tempus_Integrations extends WP_UnitTestCase {
 	private function define_classes( $classes ) {
 		foreach ( $classes as $class ) {
 			if ( ! class_exists( $class, false ) ) {
-				class_alias( 'stdClass', $class );
+				class_alias( 'Tempus_Test_Stand_In', $class );
 			}
 		}
 	}
