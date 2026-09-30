@@ -8,6 +8,8 @@
  * @since 1.2.0
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Returns a link to the previous or next day, month, or year archive.
  *
@@ -52,7 +54,7 @@ function tempus_get_adjacent_date_link( $previous = true ) {
 		$format = 'Y';
 	}
 	$rel    = $previous ? 'prev' : 'next';
-	$string = '<a href="' . $link . '" rel="' . $rel . '">' . $linktime->format( $format ) . '</a>';
+	$string = '<a href="' . esc_url( $link ) . '" rel="' . esc_attr( $rel ) . '">' . esc_html( $linktime->format( $format ) ) . '</a>';
 	return $string;
 }
 

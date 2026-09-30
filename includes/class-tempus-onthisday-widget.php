@@ -6,6 +6,8 @@
  * @since 1.0.0
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Widget listing posts published on today's date in previous years, grouped by how long ago.
  *
@@ -68,7 +70,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 		$date = new DateTime( 'now', wp_timezone() );
 		echo $args['before_widget']; // phpcs:ignore
 		if ( $title ) {
-			echo wp_kses( $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', Tempus_On_This_Day::get_link(), $title ) . $args['after_title'], Tempus_Fugit_Plugin::kses_clean() );
+			echo wp_kses( $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', esc_url( Tempus_On_This_Day::get_link() ), $title ) . $args['after_title'], Tempus_Fugit_Plugin::kses_clean() );
 		}
 		$transient = 'onthisday_widget' . $date->format( 'm-d' );
 		$posts     = get_transient( $transient );
@@ -81,7 +83,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 						'before' => 'yesterday',
 					),
 				),
-				'numberposts' => $instance['number'],
+				'numberposts' => max( 1, absint( $instance['number'] ) ),
 				'fields'      => 'ids',
 			);
 			$posts = get_posts( $query );
@@ -89,7 +91,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 		set_transient( $transient, $posts, HOUR_IN_SECONDS );
 		$organize = array();
 		foreach ( $posts as $post ) {
-			$diff = sprintf( '<a href="%1$s">%2$s</a>', tempus_get_post_day_link( $post ), human_time_diff( get_post_timestamp( $post ) ) );
+			$diff = sprintf( '<a href="%1$s">%2$s</a>', esc_url( tempus_get_post_day_link( $post ) ), esc_html( human_time_diff( get_post_timestamp( $post ) ) ) );
 			if ( ! array_key_exists( $diff, $organize ) ) {
 				$organize[ $diff ] = array();
 			}
@@ -125,7 +127,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 */
 	public function list_item( $post ) {
 		$post = get_post( $post );
-		return sprintf( '<li><a href="%2$s">%1$s</a></li>', $this->get_the_title( $post ), get_the_permalink( $post ) );
+		return sprintf( '<li><a href="%2$s">%1$s</a></li>', wp_kses( $this->get_the_title( $post ), Tempus_Fugit_Plugin::kses_clean() ), esc_url( get_the_permalink( $post ) ) );
 	}
 
 	/**
@@ -174,8 +176,11 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 * @return array Settings to save.
 	 */
 	public function update( $new_instance, $old_instance ) {
-		array_walk_recursive( $new_instance, 'sanitize_text_field' );
-		return $new_instance;
+		$instance              = array();
+		$instance['title']     = isset( $new_instance['title'] ) ? sanitize_text_field( $new_instance['title'] ) : '';
+		$instance['number']    = isset( $new_instance['number'] ) ? max( 1, absint( $new_instance['number'] ) ) : 5;
+		$instance['nonefound'] = isset( $new_instance['nonefound'] ) ? sanitize_textarea_field( $new_instance['nonefound'] ) : '';
+		return $instance;
 	}
 
 
@@ -198,7 +203,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 		<label for="<?php echo esc_attr( $this->get_field_id( 'number' ) ); ?>"><?php esc_html_e( 'Number of Posts:', 'tempus-fugit' ); ?></label>
 		<input type="number" min="1" step="1" name="<?php echo esc_attr( $this->get_field_name( 'number' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'number' ) ); ?>" value="<?php echo esc_attr( $instance['number'] ); ?>" />
 		<p><label for="<?php echo esc_attr( $this->get_field_id( 'nonefound' ) ); ?>"><?php esc_html_e( 'Text if No Posts Found:', 'tempus-fugit' ); ?></label>
-		<textarea class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'nonefound' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'nonefound' ) ); ?>"><?php echo esc_html( $instance['nonefound'] ); ?></textarea>
+		<textarea class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'nonefound' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'nonefound' ) ); ?>"><?php echo esc_textarea( $instance['nonefound'] ); ?></textarea>
 		</p>
 		<?php
 	}

@@ -6,6 +6,8 @@
  * @since 1.0.5
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Adds the `%week%` permalink tag and week archives, such as `/2024/W12/`.
  *
@@ -174,14 +176,14 @@ class Tempus_Week_Of_Year {
 	 */
 	public static function archive_title( $title ) {
 		if ( self::is_week() ) {
-			$title  = get_the_date( _x( 'W, Y', 'weekly archives date format', 'default' ) );
-			$prefix = _x( 'Week', 'date archive title prefix', 'default' );
+			$title  = get_the_date( _x( 'W, Y', 'weekly archives date format', 'tempus-fugit' ) );
+			$prefix = _x( 'Week', 'date archive title prefix', 'tempus-fugit' );
 			/** This filter is documented in wp-includes/general-template.php */
-			$prefix = apply_filters( 'get_the_archive_title_prefix', $prefix );
+			$prefix = apply_filters( 'get_the_archive_title_prefix', $prefix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter.
 			if ( $prefix ) {
 				$title = sprintf(
 				/* translators: 1: Title prefix. 2: Title. */
-					_x( '%1$s %2$s', 'archive title', 'default' ),
+					_x( '%1$s %2$s', 'archive title', 'tempus-fugit' ),
 					$prefix,
 					'<span>' . $title . '</span>'
 				);

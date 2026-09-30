@@ -6,6 +6,8 @@
  * @since 1.0.3
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Widget listing posts published in the current week number in previous years, grouped by how long ago.
  *
@@ -68,14 +70,14 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 		$date = new DateTime( 'now', wp_timezone() );
 		echo $args['before_widget']; // phpcs:ignore
 		if ( ! empty( $instance['title'] ) ) {
-			echo wp_kses( $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', Tempus_This_Week::get_link(), $title ) . $args['after_title'], Tempus_Fugit_Plugin::kses_clean() );
+			echo wp_kses( $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', esc_url( Tempus_This_Week::get_link() ), $title ) . $args['after_title'], Tempus_Fugit_Plugin::kses_clean() );
 		}
 		$transient = 'thisweek_widget' . $date->format( 'w' );
 		$posts     = get_transient( $transient );
 		if ( false === $posts ) {
 			$query = array(
 				'w'           => $date->format( 'W' ),
-				'numberposts' => $instance['number'],
+				'numberposts' => max( 1, absint( $instance['number'] ) ),
 				'fields'      => 'ids',
 				'date_query'  => array(
 					array(
@@ -88,7 +90,7 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 		set_transient( $transient, $posts, HOUR_IN_SECONDS );
 		$organize = array();
 		foreach ( $posts as $post ) {
-			$diff = sprintf( '<a href="%1$s">%2$s</a>', tempus_get_post_week_link( $post ), human_time_diff( get_post_timestamp( $post ) ) );
+			$diff = sprintf( '<a href="%1$s">%2$s</a>', esc_url( tempus_get_post_week_link( $post ) ), esc_html( human_time_diff( get_post_timestamp( $post ) ) ) );
 			if ( ! array_key_exists( $diff, $organize ) ) {
 				$organize[ $diff ] = array();
 			}

@@ -28,5 +28,12 @@
 	<rule ref="VariableAnalysis"/>
 	<rule ref="WordPress-Extra" />
         <rule ref="WordPress.WP.I18n"/>
-	<config name="text_domain" value="tempus-fugit,default"/>
+	<config name="text_domain" value="tempus-fugit"/>
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="tempus"/>
+			</property>
+		</properties>
+	</rule>
 </ruleset>

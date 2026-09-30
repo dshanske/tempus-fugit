@@ -8,6 +8,8 @@
  * @since 1.0.0
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Returns the feed types registered with the rewrite API.
  *

@@ -6,6 +6,8 @@
  * @since 1.0.3
  */
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Adds This Week archives.
  *
@@ -178,7 +180,7 @@ class Tempus_This_Week {
 
 			if ( class_exists( 'Post_Kinds_Plugin' ) ) {
 				/** This filter is documented in the Post Kinds plugin. */
-				$kind_photos_slug = apply_filters( 'kind_photos_slug', 'photos' );
+				$kind_photos_slug = apply_filters( 'kind_photos_slug', 'photos' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Post Kinds filter.
 
 				add_rewrite_rule(
 					$thisweek_slug . '/' . $kind_photos_slug . '/' . tempus_get_pagination_regex(),
@@ -259,14 +261,14 @@ class Tempus_This_Week {
 	 */
 	public static function archive_title( $title ) {
 		if ( self::is_thisweek() ) {
-			$title  = get_the_date( _x( 'W', 'weekly archives date format', 'default' ) );
-			$prefix = _x( 'Week:', 'date archive title prefix', 'default' );
+			$title  = get_the_date( _x( 'W', 'weekly archives date format', 'tempus-fugit' ) );
+			$prefix = _x( 'Week:', 'date archive title prefix', 'tempus-fugit' );
 			/** This filter is documented in wp-includes/general-template.php */
-			$prefix = apply_filters( 'get_the_archive_title_prefix', $prefix );
+			$prefix = apply_filters( 'get_the_archive_title_prefix', $prefix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter.
 			if ( $prefix ) {
 				$title = sprintf(
 				/* translators: 1: Title prefix. 2: Title. */
-					_x( '%1$s %2$s', 'archive title', 'default' ),
+					_x( '%1$s %2$s', 'archive title', 'tempus-fugit' ),
 					$prefix,
 					'<span>' . $title . '</span>'
 				);
