@@ -2,7 +2,7 @@
 **Contributors:** [dshanske](https://profiles.wordpress.org/dshanske)  
 **Tags:** time, archive, date, onthisday  
 **Stable tag:** 1.2.0  
-**Requires at least:** 4.9.9  
+**Requires at least:** 6.2  
 **Requires PHP:** 7.0  
 **Tested up to:** 6.6  
 **License:** GPLv2 or later  

@@ -24,6 +24,7 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 	 */
 	public function defaults( $instance ) {
 		$defaults = array(
+			'title'     => '',
 			'number'    => 5,
 			'nonefound' => __( 'There were no posts on this week in previous years', 'tempus-fugit' ),
 		);
@@ -57,10 +58,9 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 				'w'           => $date->format( 'W' ),
 				'numberposts' => $instance['number'],
 				'fields'      => 'ids',
-				'date_query',
-				array(
+				'date_query'  => array(
 					array(
-						'before' => 'first day in january this year',
+						'before' => 'first day of january this year',
 					),
 				),
 			);

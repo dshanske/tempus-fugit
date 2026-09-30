@@ -8,6 +8,7 @@
  * Text Domain: tempus-fugit
  * License: GPLv2 or later
  * Version: 1.2.0
+ * Requires at least: 6.2
  */
 
 register_activation_hook( __FILE__, array( 'Tempus_Fugit_Plugin', 'activate' ) );
@@ -67,32 +68,33 @@ class Tempus_Fugit_Plugin {
 		if ( ( 'update' === $options['action'] ) && ( 'plugin' === $options['type'] ) ) {
 			foreach ( $options['plugins'] as $each_plugin ) {
 				if ( $each_plugin === $current_plugin_path_name ) {
-					require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-day-of-year.php';
-					new Tempus_Day_Of_Year();
-					flush_rewrite_rules();
-
-					require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-this-week.php';
-					new Tempus_This_Week();
-					Tempus_This_Week::rewrite_rules();
+					// The previous version's code is still loaded, so let the next request rebuild the rules.
+					self::reset_rewrite_rules();
 				}
 			}
 		}
 	}
 
 	public static function activate() {
-		require_once plugin_dir_path( __FILE__ ) . '/includes/rewrite-functions.php';
-		require_once plugin_dir_path( __FILE__ ) . '/includes/functions.php';
-		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-day-of-year.php';
-		new Tempus_Day_Of_Year();
-		flush_rewrite_rules();
-
-		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-this-week.php';
-		new Tempus_This_Week();
-		Tempus_This_Week::rewrite_rules();
+		self::reset_rewrite_rules();
 	}
 
 	public static function deactivate() {
-		flush_rewrite_rules();
+		self::reset_rewrite_rules();
+	}
+
+	/**
+	 * Clear the stored rewrite rules so they are regenerated on the next request.
+	 *
+	 * Flushing during activation, deactivation, or upgrade happens before this plugin's rules
+	 * are registered (or while they are still registered), so the stored rules would be wrong.
+	 * When the option is empty, WordPress rebuilds it on the next request once every
+	 * active plugin has registered its rules on init.
+	 *
+	 * @since 1.2.1
+	 */
+	public static function reset_rewrite_rules() {
+		delete_option( 'rewrite_rules' );
 	}
 
 	public static function date_sort( $query ) {

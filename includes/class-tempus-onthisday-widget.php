@@ -24,6 +24,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	 */
 	public function defaults( $instance ) {
 		$defaults = array(
+			'title'     => '',
 			'number'    => 5,
 			'nonefound' => __( 'There were no posts on this day in previous years', 'tempus-fugit' ),
 		);
@@ -56,8 +57,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 			$query = array(
 				'day'         => $date->format( 'd' ),
 				'monthnum'    => $date->format( 'm' ),
-				'date_query',
-				array(
+				'date_query'  => array(
 					array(
 						'before' => 'yesterday',
 					),
@@ -156,12 +156,12 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	public function form( $instance ) {
 		$instance = $this->defaults( $instance );
 		?>
-				<p><label for="title"><?php esc_html_e( 'Title: ', 'tempus-fugit' ); ?></label>
-				<input type="text" size="30" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?> id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"
-				value="<?php echo esc_html( ifset( $instance['title'] ) ); ?>" /></p>
+				<p><label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title: ', 'tempus-fugit' ); ?></label>
+				<input type="text" size="30" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"
+				value="<?php echo esc_attr( $instance['title'] ); ?>" /></p>
 		<p>
 		<label for="<?php echo esc_attr( $this->get_field_id( 'number' ) ); ?>"><?php esc_html_e( 'Number of Posts:', 'tempus-fugit' ); ?></label>
-		<input type="number" min="1" step="1" name="<?php echo esc_attr( $this->get_field_name( 'number' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'number' ) ); ?>" value="<?php echo esc_attr( ifset( $instance['number'], 5 ) ); ?>" />
+		<input type="number" min="1" step="1" name="<?php echo esc_attr( $this->get_field_name( 'number' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'number' ) ); ?>" value="<?php echo esc_attr( $instance['number'] ); ?>" />
 		<p><label for="<?php echo esc_attr( $this->get_field_id( 'nonefound' ) ); ?>"><?php esc_html_e( 'Text if No Posts Found:', 'tempus-fugit' ); ?></label>
 		<textarea class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'nonefound' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'nonefound' ) ); ?>"><?php echo esc_html( $instance['nonefound'] ); ?></textarea>
 		</p>
