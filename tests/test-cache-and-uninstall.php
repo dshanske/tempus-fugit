@@ -104,6 +104,7 @@ class Test_Tempus_Cache_And_Uninstall extends WP_UnitTestCase {
 	public function test_uninstall_removes_plugin_data() {
 		update_option( 'widget_tempus_onthisday_widget', array( 2 => array( 'title' => 'Memories' ) ) );
 		update_option( 'widget_tempus_thisweek_widget', array( 2 => array( 'title' => 'Weeks' ) ) );
+		update_option( 'widget_tempus_random_widget', array( 2 => array( 'title' => 'Random' ) ) );
 		Tempus_OnThisDay_Widget::flush_cache();
 		set_transient( 'tempus_widget_abc', array( 1 ), HOUR_IN_SECONDS );
 		set_transient( 'onthisday_widget09-30', array( 1 ), HOUR_IN_SECONDS );
@@ -114,6 +115,7 @@ class Test_Tempus_Cache_And_Uninstall extends WP_UnitTestCase {
 
 		$this->assertFalse( get_option( 'widget_tempus_onthisday_widget' ) );
 		$this->assertFalse( get_option( 'widget_tempus_thisweek_widget' ) );
+		$this->assertFalse( get_option( 'widget_tempus_random_widget' ) );
 		$this->assertFalse( get_option( Tempus_OnThisDay_Widget::CACHE_VERSION_OPTION ) );
 		$this->assertFalse( get_option( 'rewrite_rules' ) );
 		foreach ( array( 'tempus_widget_', 'onthisday_widget', 'thisweek_widget' ) as $prefix ) {
