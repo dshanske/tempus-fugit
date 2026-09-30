@@ -140,6 +140,30 @@ class Tempus_Order_By {
 	}
 
 	/**
+	 * Returns the URL of a sorted archive, such as `/random/`.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
+	 *
+	 * @param string $sort Sort type: 'updated', 'oldest', or 'random'.
+	 * @return string Archive URL, or an empty string for an unknown sort type.
+	 */
+	public static function get_link( $sort ) {
+		global $wp_rewrite;
+		if ( ! in_array( $sort, array( 'updated', 'oldest', 'random' ), true ) ) {
+			return '';
+		}
+		if ( $wp_rewrite->using_index_permalinks() ) {
+			return home_url( user_trailingslashit( $wp_rewrite->index . '/' . $sort ) );
+		}
+		if ( $wp_rewrite->using_permalinks() ) {
+			return home_url( user_trailingslashit( $sort ) );
+		}
+		return add_query_arg( 'tempus_sort', $sort, home_url( '/' ) );
+	}
+
+	/**
 	 * Returns the title for a sort type.
 	 *
 	 * @since 1.0.0
