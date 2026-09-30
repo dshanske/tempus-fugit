@@ -16,7 +16,7 @@ jobs:
       uses: wordpress/plugin-check-action@v1
       with:
         exclude-directories: |
-          './bin'
-          './.github'
-          './tests'
+          bin
+          .github
+          tests
         exclude-checks: 'file_type'
