@@ -179,14 +179,14 @@ class Tempus_Day_Of_Year {
 	 */
 	public static function archive_title( $title ) {
 		if ( self::is_dayofyear() ) {
-			$title  = get_the_date( _x( 'F j, Y', 'daily archives date format', 'default' ) );
-			$prefix = _x( 'Day:', 'date archive title prefix', 'default' );
+			$title  = get_the_date( _x( 'F j, Y', 'daily archives date format', 'tempus-fugit' ) );
+			$prefix = _x( 'Day:', 'date archive title prefix', 'tempus-fugit' );
 			/** This filter is documented in wp-includes/general-template.php */
-			$prefix = apply_filters( 'get_the_archive_title_prefix', $prefix );
+			$prefix = apply_filters( 'get_the_archive_title_prefix', $prefix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter.
 			if ( $prefix ) {
 				$title = sprintf(
 				/* translators: 1: Title prefix. 2: Title. */
-					_x( '%1$s %2$s', 'archive title', 'default' ),
+					_x( '%1$s %2$s', 'archive title', 'tempus-fugit' ),
 					$prefix,
 					'<span>' . $title . '</span>'
 				);
