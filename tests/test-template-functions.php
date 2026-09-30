@@ -103,49 +103,145 @@ class Test_Tempus_Template_Functions extends WP_UnitTestCase {
 	public function test_archive_datetime_starts_at_beginning_of_period() {
 		self::factory()->post->create( array( 'post_date' => '2024-02-10 12:00:00' ) );
 		$this->go_to( home_url( '/2024/02/' ) );
-		$this->assert_same_or_known_bug(
-			'2024-02-01',
-			tempus_get_archive_datetime()->format( 'Y-m-d' ),
-			'month and year archive dates take the missing day and month from the current date.'
+		$this->assertSame( '2024-02-01 00:00:00', tempus_get_archive_datetime()->format( 'Y-m-d H:i:s' ) );
+	}
+
+	/**
+	 * @dataProvider data_archive_periods
+	 *
+	 * @param string $structure Permalink structure.
+	 * @param string $post_date Date of a post in the archive.
+	 * @param string $archive   Archive path.
+	 * @param string $type      Expected period type.
+	 * @param string $start     Expected start.
+	 * @param string $end       Expected end.
+	 */
+	public function test_archive_period( $structure, $post_date, $archive, $type, $start, $end ) {
+		$this->set_permalink_structure( $structure );
+		self::factory()->post->create( array( 'post_date' => $post_date ) );
+		$this->go_to( home_url( $archive ) );
+		$period = tempus_get_archive_period();
+		$this->assertSame( $type, $period['type'] );
+		$this->assertSame( $start, $period['start']->format( 'Y-m-d H:i:s' ) );
+		$this->assertSame( $end, $period['end']->format( 'Y-m-d H:i:s' ) );
+	}
+
+	public function data_archive_periods() {
+		$dates = '/%year%/%monthnum%/%day%/%postname%/';
+		return array(
+			'day'         => array( $dates, '2024-03-15 12:00:00', '/2024/03/15/', 'day', '2024-03-15 00:00:00', '2024-03-15 23:59:59' ),
+			'month'       => array( $dates, '2024-02-10 12:00:00', '/2024/02/', 'month', '2024-02-01 00:00:00', '2024-02-29 23:59:59' ),
+			'year'        => array( $dates, '2024-02-10 12:00:00', '/2024/', 'year', '2024-01-01 00:00:00', '2024-12-31 23:59:59' ),
+			'week'        => array( '/%year%/W%week%/%postname%/', '2024-12-31 12:00:00', '/2025/W01/', 'week', '2024-12-30 00:00:00', '2025-01-05 23:59:59' ),
+			'day of year' => array( '/%year%/%dayofyear%/%postname%/', '2024-03-15 12:00:00', '/2024/075/', 'dayofyear', '2024-03-15 00:00:00', '2024-03-15 23:59:59' ),
 		);
 	}
 
 	/**
+	 * Adjacent links skip periods without posts: there are posts in 2019, 2020, and 2022, but not 2021.
+	 *
 	 * @dataProvider data_adjacent_date_links
 	 *
-	 * @param string $archive  Archive path.
-	 * @param string $previous Expected previous link.
-	 * @param string $next     Expected next link.
+	 * @param string $structure Permalink structure.
+	 * @param string $archive   Archive path.
+	 * @param string $previous  Expected previous link.
+	 * @param string $next      Expected next link.
 	 */
-	public function test_adjacent_date_links( $archive, $previous, $next ) {
-		self::factory()->post->create( array( 'post_date' => '2020-06-15 12:00:00' ) );
+	public function test_adjacent_date_links_skip_empty_periods( $structure, $archive, $previous, $next ) {
+		$this->set_permalink_structure( $structure );
+		self::factory()->post->create( array( 'post_date' => '2019-11-20 12:00:00' ) );
+		self::factory()->post->create( array( 'post_date' => '2020-06-15 09:00:00' ) );
+		self::factory()->post->create( array( 'post_date' => '2020-06-15 18:00:00' ) );
+		self::factory()->post->create( array( 'post_date' => '2022-03-01 12:00:00' ) );
 		$this->go_to( home_url( $archive ) );
 		$this->assertSame( $previous, tempus_get_adjacent_date_link() );
 		$this->assertSame( $next, tempus_get_adjacent_date_link( false ) );
 	}
 
 	public function data_adjacent_date_links() {
+		$dates = '/%year%/%monthnum%/%day%/%postname%/';
 		return array(
-			'day'   => array( '/2020/06/15/', '<a href="http://example.org/2020/06/14/" rel="prev">June 14, 2020</a>', '<a href="http://example.org/2020/06/16/" rel="next">June 16, 2020</a>' ),
-			'month' => array( '/2020/06/', '<a href="http://example.org/2020/05/" rel="prev">May 2020</a>', '<a href="http://example.org/2020/07/" rel="next">July 2020</a>' ),
-			'year'  => array( '/2020/', '<a href="http://example.org/2019/" rel="prev">2019</a>', '<a href="http://example.org/2021/" rel="next">2021</a>' ),
+			'day'         => array( $dates, '/2020/06/15/', '<a href="http://example.org/2019/11/20/" rel="prev">November 20, 2019</a>', '<a href="http://example.org/2022/03/01/" rel="next">March 1, 2022</a>' ),
+			'month'       => array( $dates, '/2020/06/', '<a href="http://example.org/2019/11/" rel="prev">November 2019</a>', '<a href="http://example.org/2022/03/" rel="next">March 2022</a>' ),
+			'year'        => array( $dates, '/2020/', '<a href="http://example.org/2019/" rel="prev">2019</a>', '<a href="http://example.org/2022/" rel="next">2022</a>' ),
+			'week'        => array( '/%year%/W%week%/%postname%/', '/2020/W25/', '<a href="http://example.org/2019/W47/" rel="prev">Week 47, 2019</a>', '<a href="http://example.org/2022/W09/" rel="next">Week 09, 2022</a>' ),
+			'day of year' => array( '/%year%/%dayofyear%/%postname%/', '/2020/167/', '<a href="http://example.org/2019/324/" rel="prev">November 20, 2019</a>', '<a href="http://example.org/2022/060/" rel="next">March 1, 2022</a>' ),
 		);
 	}
 
-	public function test_no_next_link_for_future_dates() {
+	public function test_no_links_past_the_oldest_and_newest_posts() {
+		self::factory()->post->create( array( 'post_date' => '2020-06-15 12:00:00' ) );
+		$this->go_to( home_url( '/2020/06/' ) );
+		$this->assertSame( '', tempus_get_adjacent_date_link() );
+		$this->assertSame( '', tempus_get_adjacent_date_link( false ) );
+	}
+
+	public function test_no_next_link_to_scheduled_posts() {
 		$today = new DateTimeImmutable( 'now', wp_timezone() );
 		self::factory()->post->create( array( 'post_date' => $today->modify( '-1 minute' )->format( 'Y-m-d H:i:s' ) ) );
+		self::factory()->post->create(
+			array(
+				'post_date'   => $today->modify( '+1 year' )->format( 'Y-m-d H:i:s' ),
+				'post_status' => 'future',
+			)
+		);
 		$this->go_to( home_url( $today->format( '/Y/' ) ) );
 		$this->assertSame( '', tempus_get_adjacent_date_link( false ) );
 	}
 
-	public function test_date_navigation_markup() {
+	public function test_no_navigation_without_a_full_period() {
+		self::factory()->post->create( array( 'post_date' => '2019-03-15 12:00:00' ) );
+		$this->go_to( home_url( '/onthisday/03/15/' ) );
+		$this->assertFalse( tempus_get_archive_period() );
+		$this->assertFalse( tempus_get_adjacent_date_link() );
+		$this->go_to( home_url( '/thisweek/11/' ) );
+		$this->assertFalse( tempus_get_archive_period() );
+
+		// Time archives are date archives, but not day, month, or year archives.
+		$this->go_to( home_url( '/?year=2019&hour=12' ) );
+		$this->assertTrue( is_time() );
+		$this->assertFalse( tempus_get_archive_period() );
+	}
+
+	public function test_adjacent_link_text() {
+		self::factory()->post->create( array( 'post_date' => '2019-11-20 12:00:00' ) );
 		self::factory()->post->create( array( 'post_date' => '2020-06-15 12:00:00' ) );
 		$this->go_to( home_url( '/2020/' ) );
-		$nav = tempus_get_the_date_navigation( array( 'class' => 'my-nav' ) );
+		$this->assertSame(
+			'<a href="http://example.org/2019/" rel="prev"><span class="meta-nav">Previous:</span> 2019</a>',
+			tempus_get_adjacent_date_link( true, '<span class="meta-nav">Previous:</span> %title' )
+		);
+		$this->assertSame(
+			'<a href="http://example.org/2019/" rel="prev">Earlier alert(1)</a>',
+			tempus_get_adjacent_date_link( true, 'Earlier <script>alert(1)</script>' )
+		);
+	}
+
+	public function test_day_of_year_link() {
+		$date = new DateTimeImmutable( '2024-03-15 12:00:00', wp_timezone() );
+		$this->set_permalink_structure( '/%year%/%dayofyear%/%postname%/' );
+		$this->assertSame( home_url( '/2024/075/' ), tempus_get_day_of_year_link( $date ) );
+
+		$this->set_permalink_structure( '' );
+		$this->assertSame( home_url( '?m=20240315' ), tempus_get_day_of_year_link( $date ) );
+	}
+
+	public function test_date_navigation_markup() {
+		self::factory()->post->create( array( 'post_date' => '2019-06-15 12:00:00' ) );
+		self::factory()->post->create( array( 'post_date' => '2020-06-15 12:00:00' ) );
+		self::factory()->post->create( array( 'post_date' => '2021-06-15 12:00:00' ) );
+		$this->go_to( home_url( '/2020/' ) );
+		$nav = tempus_get_the_date_navigation(
+			array(
+				'class'     => 'my-nav',
+				'prev_text' => '&larr; %title',
+				'next_text' => '%title &rarr;',
+			)
+		);
 		$this->assertStringContainsString( '<nav class="navigation my-nav" aria-label="Date navigation">', $nav );
-		$this->assertStringContainsString( '<div class="nav-previous"><a href="http://example.org/2019/" rel="prev">2019</a></div>', $nav );
-		$this->assertStringContainsString( '<div class="nav-next"><a href="http://example.org/2021/" rel="next">2021</a></div>', $nav );
+		$this->assertStringContainsString( '<h2 class="screen-reader-text">Date navigation</h2>', $nav );
+		$this->assertStringContainsString( '<div class="nav-previous"><a href="http://example.org/2019/" rel="prev">&larr; 2019</a></div>', $nav );
+		$this->assertStringContainsString( '<div class="nav-next"><a href="http://example.org/2021/" rel="next">2021 &rarr;</a></div>', $nav );
 	}
 
 	public function test_date_navigation_without_links() {
@@ -154,22 +250,19 @@ class Test_Tempus_Template_Functions extends WP_UnitTestCase {
 		$this->assertStringContainsString( '<div class="nav-links"></div>', $nav );
 	}
 
-	public function test_date_navigation_with_screen_reader_text_only() {
-		self::factory()->post->create( array( 'post_date' => '2020-06-15 12:00:00' ) );
-		$this->go_to( home_url( '/2020/' ) );
+	public function test_date_navigation_labels() {
+		$this->go_to( home_url( '/' ) );
 		$nav = tempus_get_the_date_navigation( array( 'screen_reader_text' => 'Years' ) );
-		$this->assertStringStartsWith( '<nav class="navigation date-navigation" aria-label="', trim( $nav ) );
-		$this->assertStringContainsString( 'rel="prev">2019</a>', $nav );
-	}
+		$this->assertStringContainsString( 'aria-label="Years"', $nav );
+		$this->assertStringContainsString( '<h2 class="screen-reader-text">Years</h2>', $nav );
 
-	public function test_date_navigation_accepts_labels() {
-		self::factory()->post->create( array( 'post_date' => '2020-06-15 12:00:00' ) );
-		$this->go_to( home_url( '/2020/' ) );
-		$nav = tempus_get_the_date_navigation( array( 'screen_reader_text' => 'Years' ) );
-		$this->assert_same_or_known_bug(
-			1,
-			substr_count( $nav, 'aria-label="Years"' ),
-			'tempus_get_the_date_navigation() ignores the screen_reader_text and aria_label arguments.'
+		$nav = tempus_get_the_date_navigation(
+			array(
+				'screen_reader_text' => 'Years',
+				'aria_label'         => 'Year archives',
+			)
 		);
+		$this->assertStringContainsString( 'aria-label="Year archives"', $nav );
+		$this->assertStringContainsString( '<h2 class="screen-reader-text">Years</h2>', $nav );
 	}
 }
