@@ -14,6 +14,7 @@
 	<coverage includeUncoveredFiles="true">
 		<include>
 			<file>./tempus-fugit.php</file>
+			<file>./uninstall.php</file>
 			<directory suffix=".php">./includes</directory>
 		</include>
 	</coverage>

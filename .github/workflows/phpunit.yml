@@ -4,7 +4,7 @@ on:
     pull_request:
 jobs:
   phpunit:
-    name: PHP ${{ matrix.php-versions }} / WordPress ${{ matrix.wp-versions }}
+    name: PHP ${{ matrix.php-versions }} / WordPress ${{ matrix.wp-versions }}${{ matrix.multisite && ' / multisite' || '' }}
     runs-on: ubuntu-latest
     services:
      mysql:
@@ -21,6 +21,9 @@ jobs:
         # "Tested up to" in readme.txt must match this release.
         php-versions: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
         wp-versions: ['latest']
+        # An explicit single-site value, so the multisite entry below adds a job instead of
+        # changing the PHP 8.5 one.
+        multisite: ['']
         include:
           # Minimum supported WordPress ("Requires at least"), which ClassicPress 2.x is based on.
           # WordPress 6.2 supports PHP up to 8.2.
@@ -28,6 +31,10 @@ jobs:
             wp-versions: '6.2'
           - php-versions: '8.2'
             wp-versions: '6.2'
+          # Multisite, for network-wide code such as uninstalling.
+          - php-versions: '8.5'
+            wp-versions: 'latest'
+            multisite: '1'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,8 +53,9 @@ jobs:
         run: composer phpunit
         env:
           PHP_VERSION: ${{ matrix.php-versions }}
+          WP_MULTISITE: ${{ matrix.multisite }}
   coverage:
-    name: Code coverage (PHP 8.5 / WordPress latest)
+    name: Code coverage (PHP 8.5 / WordPress latest, single site and multisite)
     runs-on: ubuntu-latest
     services:
      mysql:
