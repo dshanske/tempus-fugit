@@ -36,13 +36,16 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 	 * @since 1.0.3
 	 *
 	 * @param array $instance Widget settings.
-	 * @return array Widget settings with defaults for 'title', 'number', and 'nonefound'.
+	 * @return array Widget settings with defaults for 'title', 'number', 'nonefound', 'taxonomy',
+	 *               and 'term'.
 	 */
 	public function defaults( $instance ) {
 		$defaults = array(
 			'title'     => '',
 			'number'    => 5,
 			'nonefound' => __( 'There were no posts on this week in previous years', 'tempus-fugit' ),
+			'taxonomy'  => '',
+			'term'      => '',
 		);
 		return wp_parse_args( $instance, $defaults );
 	}
@@ -50,7 +53,8 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 	/**
 	 * Outputs the widget on the front end.
 	 *
-	 * Results are cached in a transient for an hour.
+	 * Results are cached in a transient for an hour. When the widget is limited to a term, it
+	 * lists posts with that term and links to the term's This Week archive.
 	 *
 	 * @since 1.0.3
 	 *
@@ -68,28 +72,27 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 
 		// $date = new DateTime( '2020-01-01' ); // Uncomment for testing.
 		$date = new DateTime( 'now', wp_timezone() );
+		$term = $this->get_widget_term( $instance );
+		$link = $term ? Tempus_This_Week::get_term_archive_link( $term ) : Tempus_This_Week::get_link();
 		echo $args['before_widget']; // phpcs:ignore
 		if ( ! empty( $instance['title'] ) ) {
-			echo wp_kses( $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', esc_url( Tempus_This_Week::get_link() ), $title ) . $args['after_title'], Tempus_Fugit_Plugin::kses_clean() );
+			echo wp_kses( $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', esc_url( $link ), $title ) . $args['after_title'], Tempus_Fugit_Plugin::kses_clean() );
 		}
-		$transient = 'thisweek_widget' . $date->format( 'o-W' );
-		$posts     = get_transient( $transient );
-		if ( false === $posts ) {
-			$query = array(
+		$posts    = $this->get_widget_posts(
+			array(
 				// Matched as an ISO-8601 week by Tempus_This_Week::posts_where().
 				'tempus_iso_week'  => (int) $date->format( 'W' ),
 				'suppress_filters' => false,
-				'numberposts'      => max( 1, absint( $instance['number'] ) ),
-				'fields'           => 'ids',
 				'date_query'       => array(
 					array(
 						'before' => Tempus_This_Week::get_current_week_start()->format( 'Y-m-d H:i:s' ),
 					),
 				),
-			);
-			$posts = get_posts( $query );
-		}
-		set_transient( $transient, $posts, HOUR_IN_SECONDS );
+			),
+			$date->format( 'o-\WW' ),
+			$term,
+			$instance
+		);
 		$organize = array();
 		foreach ( $posts as $post ) {
 			$diff = sprintf( '<a href="%1$s">%2$s</a>', esc_url( tempus_get_post_week_link( $post ) ), esc_html( human_time_diff( get_post_timestamp( $post ) ) ) );
