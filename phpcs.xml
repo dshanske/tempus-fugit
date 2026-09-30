@@ -6,7 +6,7 @@
 	<file>./includes/</file>
 	<exclude-pattern>*/includes/*\.(inc|css|js|svg)</exclude-pattern>
 	<rule ref="PHPCompatibility"/>
-	<config name="testVersion" value="7.0-"/>
+	<config name="testVersion" value="7.4-"/>
 	<rule ref="PHPCompatibilityWP"/>
 	<config name="minimum_supported_wp_version" value="6.2"/>
 	<rule ref="WordPress.WP.DeprecatedFunctions" />
