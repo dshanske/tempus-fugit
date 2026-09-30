@@ -48,6 +48,8 @@ function tempus_get_post_day_link( $post = null ) {
 /**
  * Returns the URL of the week archive (`/YYYY/Www/`) for a post's publish date.
  *
+ * Uses the ISO-8601 week number and the ISO-8601 year that week belongs to.
+ *
  * @since 1.1.2
  *
  * @param int|WP_Post|null $post Optional. Post ID or post object. Default is the current post.
@@ -57,7 +59,7 @@ function tempus_get_post_week_link( $post = null ) {
 	$post     = get_post( $post ); // Allows support of current post and post ID.
 	$weeklink = '%year%/W%week%';
 	$datetime = get_post_datetime( $post );
-	$year     = $datetime->format( 'Y' );
+	$year     = $datetime->format( 'o' );
 	$week     = $datetime->format( 'W' );
 	$month    = $datetime->format( 'm' );
 	$day      = $datetime->format( 'd' );

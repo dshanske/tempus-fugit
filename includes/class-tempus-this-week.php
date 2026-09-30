@@ -12,7 +12,8 @@ defined( 'ABSPATH' ) || exit;
  * Adds This Week archives.
  *
  * `/thisweek` lists posts from the current week number in previous years, and
- * `/thisweek/NN` lists posts from that week number in every year.
+ * `/thisweek/NN` lists posts from that week number in every year. Weeks are ISO-8601 weeks,
+ * which start on Monday, whatever the site's "Week starts on" setting.
  *
  * @since 1.0.3
  */
@@ -25,6 +26,7 @@ class Tempus_This_Week {
 	public function __construct() {
 		add_action( 'plugins_loaded', array( __CLASS__, 'plugins_loaded' ) );
 		add_filter( 'pre_get_posts', array( __CLASS__, 'pre_get_posts' ) );
+		add_filter( 'posts_where', array( __CLASS__, 'posts_where' ), 10, 2 );
 		add_filter( 'get_the_archive_title', array( __CLASS__, 'archive_title' ) );
 		add_filter( 'document_title_parts', array( __CLASS__, 'title_parts' ) );
 		add_filter( 'query_vars', array( __CLASS__, 'query_vars' ) );
@@ -199,7 +201,11 @@ class Tempus_This_Week {
 	}
 
 	/**
-	 * Turns a `/thisweek` request into a query for the current week number in previous years.
+	 * Turns a This Week request into a query for an ISO-8601 week number.
+	 *
+	 * `/thisweek` uses the current week and only lists posts from before this week began.
+	 * `/thisweek/NN` uses week NN in every year. The week is matched in `posts_where()`,
+	 * because core's `w` query var numbers weeks by the site's "Week starts on" setting.
 	 *
 	 * Hooked to `pre_get_posts`. Only affects the main query on the front end.
 	 *
@@ -213,40 +219,83 @@ class Tempus_This_Week {
 		if ( is_admin() || ! $query->is_main_query() ) {
 			return;
 		}
-		$thisweek = get_query_var( 'thisweek' );
-		// Only when no specific date was requested.
-		if ( $thisweek && empty( get_query_var( 'year' ) ) && empty( get_query_var( 'monthnum' ) ) && empty( get_query_var( 'day' ) ) & empty( get_query_var( 'w' ) ) ) {
-			$now                    = new DateTime( 'now', wp_timezone() );
-			$query->is_date         = true;
-			$query->is_day          = false;
-			$query->is_home         = false;
-			$query->is_archive      = true;
-			$query->is_comment_feed = false;
-			$query->set(
-				'w',
-				$now->format( 'W' )
-			);
-			$query->set(
-				'date_query',
-				array(
-					array(
-						'before' => 'first day of january this year',
-					),
-				)
-			);
+		// Only for This Week requests without a specific date.
+		if ( ! $query->get( 'thisweek' ) || $query->get( 'year' ) || $query->get( 'monthnum' ) || $query->get( 'day' ) ) {
+			return $query;
 		}
+		$query->is_date         = true;
+		$query->is_day          = false;
+		$query->is_home         = false;
+		$query->is_archive      = true;
+		$query->is_comment_feed = false;
+
+		$week = (int) $query->get( 'w' );
+		// Replace core's week number with the ISO-8601 week.
+		$query->set( 'w', '' );
+		if ( $week ) {
+			$query->set( 'tempus_iso_week', $week );
+			return $query;
+		}
+
+		$now = new DateTimeImmutable( 'now', wp_timezone() );
+		$query->set( 'tempus_iso_week', (int) $now->format( 'W' ) );
+		$query->set(
+			'date_query',
+			array(
+				array(
+					'before' => self::get_current_week_start()->format( 'Y-m-d H:i:s' ),
+				),
+			)
+		);
 		return $query;
 	}
 
 	/**
-	 * Whether the current request is a week-number archive without a year or month.
+	 * Limits a query to posts published in an ISO-8601 week number, in any year.
+	 *
+	 * Applies to any query with the `tempus_iso_week` query var, which the This Week archive
+	 * and widget set. MySQL's `WEEK()` mode 3 numbers weeks the same way as ISO-8601.
+	 *
+	 * Hooked to `posts_where`.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @global wpdb $wpdb WordPress database abstraction object.
+	 *
+	 * @param string   $where The WHERE clause of the query.
+	 * @param WP_Query $query The query.
+	 * @return string The WHERE clause.
+	 */
+	public static function posts_where( $where, $query ) {
+		global $wpdb;
+		$week = (int) $query->get( 'tempus_iso_week' );
+		if ( $week < 1 || $week > 53 ) {
+			return $where;
+		}
+		return $where . $wpdb->prepare( " AND WEEK( {$wpdb->posts}.post_date, 3 ) = %d", $week );
+	}
+
+	/**
+	 * Returns midnight on the Monday that started the current ISO-8601 week, in the site's timezone.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @return DateTimeImmutable Start of the current week.
+	 */
+	public static function get_current_week_start() {
+		$now = new DateTimeImmutable( 'now', wp_timezone() );
+		return Tempus_Week_Of_Year::get_week_start( (int) $now->format( 'o' ), (int) $now->format( 'W' ) );
+	}
+
+	/**
+	 * Whether the current request is a This Week archive.
 	 *
 	 * @since 1.0.3
 	 *
 	 * @return bool True for a This Week archive.
 	 */
 	public static function is_thisweek() {
-		return ( is_date() && empty( get_query_var( 'year' ) ) && empty( get_query_var( 'monthnum' ) ) && ! empty( get_query_var( 'w' ) ) );
+		return ( is_date() && get_query_var( 'thisweek' ) && get_query_var( 'tempus_iso_week' ) && empty( get_query_var( 'year' ) ) && empty( get_query_var( 'monthnum' ) ) );
 	}
 
 	/**

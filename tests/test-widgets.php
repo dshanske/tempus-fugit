@@ -24,6 +24,23 @@ class Test_Tempus_Widgets extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Returns midday on the Wednesday of this ISO week number, at least a number of years ago.
+	 *
+	 * Goes further back if needed to find a year that has this week (week 53 is not in every year).
+	 *
+	 * @param int $years Minimum number of years ago.
+	 * @return DateTimeImmutable Date in the same ISO week number.
+	 */
+	private function same_week_years_ago( $years ) {
+		$week = (int) $this->today->format( 'W' );
+		$year = (int) $this->today->format( 'o' ) - $years;
+		while ( (int) $this->today->setISODate( $year, $week, 3 )->format( 'W' ) !== $week ) {
+			--$year;
+		}
+		return $this->today->setISODate( $year, $week, 3 )->setTime( 12, 0 );
+	}
+
+	/**
 	 * Renders a widget and returns its output.
 	 *
 	 * @param WP_Widget $widget   Widget.
@@ -76,11 +93,7 @@ class Test_Tempus_Widgets extends WP_UnitTestCase {
 	}
 
 	public function test_thisweek_widget() {
-		$week = (int) $this->today->format( 'W' );
-		if ( 1 === $week || $week >= 52 ) {
-			$this->markTestSkipped( 'Week numbering differs at year boundaries.' );
-		}
-		$date = $this->today->setISODate( (int) $this->today->format( 'o' ) - 4, $week, 3 )->setTime( 12, 0 );
+		$date = $this->same_week_years_ago( 4 );
 		$post = self::factory()->post->create(
 			array(
 				'post_title' => 'Same week',

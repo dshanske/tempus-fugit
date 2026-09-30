@@ -37,11 +37,7 @@ class Test_Tempus_Template_Functions extends WP_UnitTestCase {
 	public function test_post_week_link_uses_iso_year_at_year_boundary() {
 		// December 30, 2024 is in ISO week 1 of 2025.
 		$post = self::factory()->post->create( array( 'post_date' => '2024-12-30 12:00:00' ) );
-		$this->assert_same_or_known_bug(
-			home_url( '/2025/W01/' ),
-			tempus_get_post_week_link( $post ),
-			'week links combine the ISO week number with the calendar year instead of the ISO year.'
-		);
+		$this->assertSame( home_url( '/2025/W01/' ), tempus_get_post_week_link( $post ) );
 	}
 
 	public function test_post_week_link_with_plain_permalinks() {
