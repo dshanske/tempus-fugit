@@ -59,7 +59,7 @@ class Tempus_Day_Of_Year {
 			$query->set(
 				'date_query',
 				array(
-					'dayofyear' => $query->get( 'dayofyear' ),
+					'dayofyear' => (int) $query->get( 'dayofyear' ),
 					'year'      => $query->get( 'year' ),
 				)
 			);
@@ -79,7 +79,8 @@ class Tempus_Day_Of_Year {
 			return $permalink;
 		}
 		$datetime = get_post_datetime( $post );
-		return str_replace( '%dayofyear%', zeroise( $datetime->format( 'z' ), 3 ), $permalink );
+		// PHP's 'z' is zero-based; the ordinal day of the year (and MySQL DAYOFYEAR) starts at 1.
+		return str_replace( '%dayofyear%', zeroise( (int) $datetime->format( 'z' ) + 1, 3 ), $permalink );
 	}
 
 	public static function is_dayofyear() {

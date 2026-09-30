@@ -10,12 +10,12 @@ function tempus_get_post_day_link( $post = null ) {
 	$year      = $datetime->format( 'Y' );
 	$month     = $datetime->format( 'm' );
 	$day       = $datetime->format( 'd' );
-	$dayofyear = $datetime->format( 'z' );
+	$dayofyear = (int) $datetime->format( 'z' ) + 1; // Ordinal day of the year, 001-366.
 	if ( ! empty( $daylink ) ) {
 		$daylink = str_replace( '%year%', $year, $daylink );
 		$daylink = str_replace( '%monthnum%', zeroise( (int) $month, 2 ), $daylink );
 		$daylink = str_replace( '%day%', zeroise( (int) $day, 2 ), $daylink );
-		$daylink = str_replace( '%dayofyear%', zeroise( (int) $dayofyear, 2 ), $daylink );
+		$daylink = str_replace( '%dayofyear%', zeroise( $dayofyear, 3 ), $daylink );
 		$daylink = home_url( user_trailingslashit( $daylink, 'day' ) );
 	} else {
 		$daylink = home_url( '?m=' . $year . zeroise( $month, 2 ) . zeroise( $day, 2 ) );
