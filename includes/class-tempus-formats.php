@@ -59,7 +59,7 @@ class Tempus_Formats {
 			return $value;
 		}
 		// If this is a On This Week archive.
-		if ( empty( get_query_var( 'year' ) ) && empty( get_query_var( 'monthnum' ) ) && ! empty( get_query_var( 'w' ) ) ) {
+		if ( Tempus_This_Week::is_thisweek() ) {
 			return $value;
 			// Otherwise, if this is a day archive.
 		} elseif ( is_day() ) {

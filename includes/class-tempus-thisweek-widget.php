@@ -72,16 +72,18 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 		if ( ! empty( $instance['title'] ) ) {
 			echo wp_kses( $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', esc_url( Tempus_This_Week::get_link() ), $title ) . $args['after_title'], Tempus_Fugit_Plugin::kses_clean() );
 		}
-		$transient = 'thisweek_widget' . $date->format( 'w' );
+		$transient = 'thisweek_widget' . $date->format( 'o-W' );
 		$posts     = get_transient( $transient );
 		if ( false === $posts ) {
 			$query = array(
-				'w'           => $date->format( 'W' ),
-				'numberposts' => max( 1, absint( $instance['number'] ) ),
-				'fields'      => 'ids',
-				'date_query'  => array(
+				// Matched as an ISO-8601 week by Tempus_This_Week::posts_where().
+				'tempus_iso_week'  => (int) $date->format( 'W' ),
+				'suppress_filters' => false,
+				'numberposts'      => max( 1, absint( $instance['number'] ) ),
+				'fields'           => 'ids',
+				'date_query'       => array(
 					array(
-						'before' => 'first day of january this year',
+						'before' => Tempus_This_Week::get_current_week_start()->format( 'Y-m-d H:i:s' ),
 					),
 				),
 			);

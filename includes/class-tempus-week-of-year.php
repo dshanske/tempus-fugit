@@ -23,6 +23,7 @@ class Tempus_Week_Of_Year {
 		add_action( 'plugins_loaded', array( __CLASS__, 'plugins_loaded' ) );
 		add_filter( 'available_permalink_structure_tags', array( __CLASS__, 'archive_permalink_structure_tags' ) );
 		add_filter( 'pre_get_posts', array( __CLASS__, 'week_of_year' ) );
+		add_filter( 'pre_post_link', array( __CLASS__, 'pre_post_link' ), 10, 2 );
 		add_filter( 'post_link', array( __CLASS__, 'post_link' ), 10, 2 );
 		add_filter( 'post_type_link', array( __CLASS__, 'post_link' ), 10, 2 );
 		add_filter( 'get_the_archive_title', array( __CLASS__, 'archive_title' ) );
@@ -105,7 +106,27 @@ class Tempus_Week_Of_Year {
 	}
 
 	/**
+	 * Fills in `%year%` and `%week%` with the post's ISO-8601 week-numbering year and week.
+	 *
+	 * Hooked to `pre_post_link`, which runs before WordPress replaces `%year%` with the
+	 * calendar year. ISO weeks can cross New Year: December 30, 2024 is in week 1 of 2025,
+	 * so in a structure with `%week%`, `%year%` must be the ISO year.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param string  $permalink The permalink structure.
+	 * @param WP_Post $post      The post.
+	 * @return string The permalink structure.
+	 */
+	public static function pre_post_link( $permalink, $post ) {
+		return self::post_link( $permalink, $post );
+	}
+
+	/**
 	 * Replaces `%week%` in a permalink with the post's two-digit ISO-8601 week number.
+	 *
+	 * If `%year%` is still in the permalink, it is replaced with the ISO-8601 year that the
+	 * week belongs to.
 	 *
 	 * Hooked to `post_link` and `post_type_link`.
 	 *
@@ -120,11 +141,14 @@ class Tempus_Week_Of_Year {
 			return $permalink;
 		}
 		$datetime = get_post_datetime( $post );
-		return str_replace( '%week%', zeroise( $datetime->format( 'W' ), 2 ), $permalink );
+		return str_replace( array( '%year%', '%week%' ), array( $datetime->format( 'o' ), $datetime->format( 'W' ) ), $permalink );
 	}
 
 	/**
-	 * Converts a year and week request into a date query.
+	 * Converts a year and week request into a query for the dates in that ISO-8601 week.
+	 *
+	 * The week runs from Monday to Sunday. A week that doesn't exist in that year, such as
+	 * week 53 in a year with 52 weeks, matches no posts.
 	 *
 	 * Hooked to `pre_get_posts`. Skips admin requests.
 	 *
@@ -141,16 +165,43 @@ class Tempus_Week_Of_Year {
 
 		// If this is a date archive for a year and week.
 		if ( is_date() && ! empty( $query->get( 'tempus_week' ) ) && ! empty( $query->get( 'year' ) ) ) {
-			$query->set(
-				'date_query',
-				array(
-					'week' => $query->get( 'tempus_week' ),
-					'year' => $query->get( 'year' ),
-				)
-			);
+			$year   = (int) $query->get( 'year' );
+			$week   = (int) $query->get( 'tempus_week' );
+			$monday = self::get_week_start( $year, $week );
+			if ( (int) $monday->format( 'o' ) !== $year || (int) $monday->format( 'W' ) !== $week ) {
+				// Not a week in this year.
+				$query->set( 'post__in', array( 0 ) );
+			} else {
+				$query->set(
+					'date_query',
+					array(
+						array(
+							'after'     => $monday->format( 'Y-m-d H:i:s' ),
+							'before'    => $monday->modify( '+6 days' )->setTime( 23, 59, 59 )->format( 'Y-m-d H:i:s' ),
+							'inclusive' => true,
+						),
+					)
+				);
+			}
 			$query->set( 'year', '' );
 		}
 		return $query;
+	}
+
+	/**
+	 * Returns midnight on the Monday that starts an ISO-8601 week, in the site's timezone.
+	 *
+	 * A week number outside the year rolls over into the neighboring year.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param int $year ISO-8601 week-numbering year.
+	 * @param int $week ISO-8601 week number.
+	 * @return DateTimeImmutable Start of the week.
+	 */
+	public static function get_week_start( $year, $week ) {
+		$date = new DateTimeImmutable( 'now', wp_timezone() );
+		return $date->setISODate( $year, $week, 1 )->setTime( 0, 0 );
 	}
 
 	/**
@@ -176,7 +227,7 @@ class Tempus_Week_Of_Year {
 	 */
 	public static function archive_title( $title ) {
 		if ( self::is_week() ) {
-			$title  = get_the_date( _x( 'W, Y', 'weekly archives date format', 'tempus-fugit' ) );
+			$title  = get_the_date( _x( 'W, o', 'weekly archives date format', 'tempus-fugit' ) );
 			$prefix = _x( 'Week', 'date archive title prefix', 'tempus-fugit' );
 			/** This filter is documented in wp-includes/general-template.php */
 			$prefix = apply_filters( 'get_the_archive_title_prefix', $prefix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter.
