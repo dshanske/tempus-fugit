@@ -24,6 +24,23 @@ class Test_Tempus_On_This_Day extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Returns midday on the Wednesday of this ISO week number, at least a number of years ago.
+	 *
+	 * Goes further back if needed to find a year that has this week (week 53 is not in every year).
+	 *
+	 * @param int $years Minimum number of years ago.
+	 * @return DateTimeImmutable Date in the same ISO week number.
+	 */
+	private function same_week_years_ago( $years ) {
+		$week = (int) $this->today->format( 'W' );
+		$year = (int) $this->today->format( 'o' ) - $years;
+		while ( (int) $this->today->setISODate( $year, $week, 3 )->format( 'W' ) !== $week ) {
+			--$year;
+		}
+		return $this->today->setISODate( $year, $week, 3 )->setTime( 12, 0 );
+	}
+
+	/**
 	 * Creates a post on today's month and day, a number of years ago.
 	 *
 	 * @param int $years_ago Years before this year. 0 creates a post dated now.
@@ -60,18 +77,64 @@ class Test_Tempus_On_This_Day extends WP_UnitTestCase {
 	}
 
 	public function test_thisweek_archive_lists_previous_years() {
-		$week = (int) $this->today->format( 'W' );
-		if ( 1 === $week || $week >= 52 ) {
-			// Near a year boundary, ISO weeks and MySQL WEEK() numbering can differ.
-			$this->markTestSkipped( 'Week numbering differs at year boundaries.' );
-		}
-		$date = $this->today->setISODate( (int) $this->today->format( 'o' ) - 4, $week, 3 )->setTime( 12, 0 );
+		$date = $this->same_week_years_ago( 4 );
 		$past = self::factory()->post->create( array( 'post_date' => $date->format( 'Y-m-d H:i:s' ) ) );
 
 		$this->go_to( home_url( '/thisweek/' ) );
 		$this->assertTrue( is_archive() );
 		$this->assertTrue( Tempus_This_Week::is_thisweek() );
 		$this->assertContains( $past, wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );
+	}
+
+	/**
+	 * @dataProvider data_start_of_week
+	 *
+	 * @param int $start_of_week The site's "Week starts on" setting.
+	 */
+	public function test_thisweek_specific_week_uses_iso_weeks( $start_of_week ) {
+		update_option( 'start_of_week', $start_of_week );
+		$in  = array(
+			self::factory()->post->create( array( 'post_date' => '2024-12-30 12:00:00' ) ), // Monday of 2025-W01.
+			self::factory()->post->create( array( 'post_date' => '2021-01-04 12:00:00' ) ), // Monday of 2021-W01.
+			self::factory()->post->create( array( 'post_date' => '2021-01-10 12:00:00' ) ), // Sunday of 2021-W01.
+		);
+		$out = array(
+			self::factory()->post->create( array( 'post_date' => '2024-12-29 12:00:00' ) ), // Sunday of 2024-W52.
+			self::factory()->post->create( array( 'post_date' => '2021-01-03 12:00:00' ) ), // Sunday of 2020-W53.
+			self::factory()->post->create( array( 'post_date' => '2021-01-11 12:00:00' ) ), // Monday of 2021-W02.
+		);
+
+		$this->go_to( home_url( '/thisweek/01/' ) );
+		$this->assertTrue( Tempus_This_Week::is_thisweek() );
+		$ids = wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' );
+		$this->assertEqualsCanonicalizing( $in, $ids );
+		foreach ( $out as $post ) {
+			$this->assertNotContains( $post, $ids );
+		}
+	}
+
+	public function data_start_of_week() {
+		return array(
+			'weeks start on Monday' => array( 1 ),
+			'weeks start on Sunday' => array( 0 ),
+		);
+	}
+
+	public function test_thisweek_week_53() {
+		$posts = array(
+			self::factory()->post->create( array( 'post_date' => '2021-01-01 12:00:00' ) ), // Friday of 2020-W53.
+			self::factory()->post->create( array( 'post_date' => '2015-12-31 12:00:00' ) ), // Thursday of 2015-W53.
+		);
+		self::factory()->post->create( array( 'post_date' => '2021-01-04 12:00:00' ) ); // Monday of 2021-W01.
+		$this->go_to( home_url( '/thisweek/53/' ) );
+		$this->assertEqualsCanonicalizing( $posts, wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );
+	}
+
+	public function test_core_week_queries_are_not_this_week() {
+		self::factory()->post->create( array( 'post_date' => '2019-03-15 12:00:00' ) );
+		$this->go_to( add_query_arg( 'w', 11, home_url( '/' ) ) );
+		$this->assertTrue( is_date() );
+		$this->assertFalse( Tempus_This_Week::is_thisweek() );
 	}
 
 	public function test_onthisday_widget_shows_previous_years_only() {
