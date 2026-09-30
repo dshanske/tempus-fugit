@@ -15,6 +15,15 @@ defined( 'ABSPATH' ) || exit;
  */
 class Tempus_OnThisDay_Widget extends WP_Widget {
 	/**
+	 * Option holding the widget cache version. Changing it invalidates every widget cache.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @var string
+	 */
+	const CACHE_VERSION_OPTION = 'tempus_fugit_widget_cache_version';
+
+	/**
 	 * Sets up the widget name and description.
 	 *
 	 * @since 1.0.0
@@ -68,9 +77,81 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 	}
 
 	/**
+	 * Registers the hooks that invalidate widget caches when published posts change.
+	 *
+	 * @since 1.2.1
+	 */
+	public static function register_cache_hooks() {
+		add_action( 'transition_post_status', array( __CLASS__, 'transition_post_status' ), 10, 3 );
+		add_action( 'deleted_post', array( __CLASS__, 'deleted_post' ), 10, 2 );
+		add_action( 'set_object_terms', array( __CLASS__, 'set_object_terms' ) );
+	}
+
+	/**
+	 * Invalidates every widget cache.
+	 *
+	 * Bumps a version number that is part of each cache key, so it works with or without a
+	 * persistent object cache. Old entries expire on their own.
+	 *
+	 * @since 1.2.1
+	 */
+	public static function flush_cache() {
+		update_option( self::CACHE_VERSION_OPTION, (int) get_option( self::CACHE_VERSION_OPTION, 0 ) + 1 );
+	}
+
+	/**
+	 * Invalidates widget caches when a post is published, unpublished, or updated while published.
+	 *
+	 * Hooked to `transition_post_status`.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param string  $new_status New post status.
+	 * @param string  $old_status Old post status.
+	 * @param WP_Post $post       Post.
+	 */
+	public static function transition_post_status( $new_status, $old_status, $post ) {
+		if ( 'publish' === $new_status || 'publish' === $old_status ) {
+			self::flush_cache();
+		}
+	}
+
+	/**
+	 * Invalidates widget caches when a published post is deleted without going to the trash.
+	 *
+	 * Hooked to `deleted_post`.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post.
+	 */
+	public static function deleted_post( $post_id, $post ) {
+		if ( 'publish' === $post->post_status ) {
+			self::flush_cache();
+		}
+	}
+
+	/**
+	 * Invalidates widget caches when a published post's terms change.
+	 *
+	 * Hooked to `set_object_terms`.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param int $object_id Object ID.
+	 */
+	public static function set_object_terms( $object_id ) {
+		if ( 'publish' === get_post_status( $object_id ) ) {
+			self::flush_cache();
+		}
+	}
+
+	/**
 	 * Returns posts for the widget, cached in a transient for an hour.
 	 *
-	 * The cache is separate for each widget, period, term, and number of posts.
+	 * The cache is separate for each widget, period, term, and number of posts, and is replaced
+	 * whenever a published post changes (see flush_cache()).
 	 *
 	 * @since 1.2.1
 	 *
@@ -85,7 +166,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 			return array();
 		}
 		$number = max( 1, absint( $instance['number'] ) );
-		$key    = 'tempus_widget_' . md5( wp_json_encode( array( $this->id, $period, $term ? $term->term_id : 0, $number ) ) );
+		$key    = 'tempus_widget_' . md5( wp_json_encode( array( $this->id, $period, $term ? $term->term_id : 0, $number, (int) get_option( self::CACHE_VERSION_OPTION, 0 ) ) ) );
 		$posts  = get_transient( $key );
 		if ( false === $posts ) {
 			$query['numberposts'] = $number;

@@ -59,6 +59,7 @@ class Tempus_Fugit_Plugin {
 					register_widget( 'Tempus_ThisWeek_Widget' );
 				}
 			);
+			Tempus_OnThisDay_Widget::register_cache_hooks();
 		}
 	}
 
