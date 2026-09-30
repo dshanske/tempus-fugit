@@ -183,6 +183,8 @@ class Tempus_Week_Of_Year {
 					)
 				);
 			}
+			// Core would add its own YEAR() condition, so keep the year where navigation can find it.
+			$query->set( 'tempus_year', (int) $query->get( 'year' ) );
 			$query->set( 'year', '' );
 		}
 		return $query;
