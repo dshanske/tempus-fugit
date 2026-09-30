@@ -402,7 +402,8 @@ class Test_Tempus_Taxonomy_Archives extends WP_UnitTestCase {
 		);
 		$form = ob_get_clean();
 		$this->assertStringContainsString( '<option value="">All posts</option>', $form );
-		$this->assertMatchesRegularExpression( '/<option value="topic"\s+selected=\'selected\'>/', $form );
+		// WordPress prints selected='selected'; ClassicPress prints the HTML5 boolean attribute.
+		$this->assertMatchesRegularExpression( '/<option value="topic"\s+selected(=\'selected\')?>/', $form );
 		$this->assertStringContainsString( 'name="widget-tempus_onthisday_widget[3][term]" id="widget-tempus_onthisday_widget-3-term" value="travel"', $form );
 	}
 }
