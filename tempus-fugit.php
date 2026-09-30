@@ -63,7 +63,8 @@ class Tempus_Fugit_Plugin {
 	}
 
 	/**
-	 * Loads the template functions and each feature class, and registers their rewrite rules.
+	 * Loads the template functions and each feature class, and registers their rewrite rules
+	 * and the shortcodes.
 	 *
 	 * Hooked to `init`.
 	 *
@@ -92,6 +93,12 @@ class Tempus_Fugit_Plugin {
 		require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-this-week.php';
 		new Tempus_This_Week();
 		Tempus_This_Week::rewrite_rules();
+
+		// The shortcodes render the widgets, which aren't loaded if Post Kinds provides its own.
+		if ( class_exists( 'Tempus_OnThisDay_Widget' ) ) {
+			require_once plugin_dir_path( __FILE__ ) . '/includes/class-tempus-shortcodes.php';
+			Tempus_Shortcodes::register();
+		}
 	}
 
 	/**

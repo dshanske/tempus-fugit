@@ -20,6 +20,7 @@ This is a compilation of many tweaks to improve your site, including...
 4. Adds This Week URLs and Widgets /thisweek
 5. Adds /updated, /random, /oldest as top level archives
 6. Adds the %week% tag so you can have your permalinks include the year and adds the option for 2021/W21 to indicate Week 21 of the year.
+7. Adds the [tempus_onthisday] and [tempus_thisweek] shortcodes, which show the same lists as the widgets on any page. They accept title, number, taxonomy, term, and nonefound attributes, for example [tempus_onthisday title="On This Day" taxonomy="category" term="travel"].
 
 
 == Installation ==
