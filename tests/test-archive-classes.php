@@ -115,17 +115,34 @@ class Test_Tempus_Archive_Classes extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'week/?$', $GLOBALS['wp_rewrite']->extra_rules_top );
 	}
 
-	public function test_links_use_filtered_slugs() {
+	/**
+	 * @dataProvider data_filtered_slug_links
+	 *
+	 * @param string $structure Permalink structure.
+	 * @param string $prefix    Expected path before the slug.
+	 */
+	public function test_links_use_filtered_slugs( $structure, $prefix ) {
+		$this->set_permalink_structure( $structure );
 		add_filter(
 			'tempus_fugit_onthisday_slug',
 			function () {
 				return 'today';
 			}
 		);
-		$this->assert_same_or_known_bug(
-			home_url( 'today' ),
-			Tempus_On_This_Day::get_link(),
-			'get_link() hardcodes the slug instead of using get_slug(), so a filtered slug is ignored.'
+		add_filter(
+			'tempus_fugit_thisweek_slug',
+			function () {
+				return 'week';
+			}
+		);
+		$this->assertSame( home_url( $prefix . 'today' ), Tempus_On_This_Day::get_link() );
+		$this->assertSame( home_url( $prefix . 'week' ), Tempus_This_Week::get_link() );
+	}
+
+	public function data_filtered_slug_links() {
+		return array(
+			'pretty permalinks' => array( '/%year%/%monthnum%/%postname%/', '' ),
+			'index permalinks'  => array( '/index.php/%year%/%postname%/', 'index.php/' ),
 		);
 	}
 

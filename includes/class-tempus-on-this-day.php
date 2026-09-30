@@ -85,19 +85,19 @@ class Tempus_On_This_Day {
 	 * @return string Archive URL.
 	 */
 	public static function get_link( $blog_id = null ) {
-		if ( is_multisite() && get_blog_option( $blog_id, 'permalink_structure' ) || get_option( 'permalink_structure' ) ) {
-				global $wp_rewrite;
+		$permalink_structure = is_multisite() ? get_blog_option( $blog_id, 'permalink_structure' ) : get_option( 'permalink_structure' );
+		if ( $permalink_structure ) {
+			global $wp_rewrite;
 			if ( $wp_rewrite->using_index_permalinks() ) {
-				$url = get_home_url( $blog_id, $wp_rewrite->index . '/onthisday' );
-
+				$url = get_home_url( $blog_id, $wp_rewrite->index . '/' . self::get_slug() );
 			} else {
-				$url = get_home_url( $blog_id, 'onthisday' );
+				$url = get_home_url( $blog_id, self::get_slug() );
 			}
 		} else {
-				$url = trailingslashit( get_home_url( $blog_id, '' ) );
-				// nginx only allows HTTP/1.0 methods when redirecting from / to /index.php.
-				// To work around this, we manually add index.php to the URL, avoiding the redirect.
-			if ( 'index.php' !== substr( $url, 9 ) ) {
+			$url = trailingslashit( get_home_url( $blog_id, '' ) );
+			// nginx only allows HTTP/1.0 methods when redirecting from / to /index.php.
+			// To work around this, we manually add index.php to the URL, avoiding the redirect.
+			if ( 'index.php' !== substr( $url, -9 ) ) {
 				$url .= 'index.php';
 			}
 
