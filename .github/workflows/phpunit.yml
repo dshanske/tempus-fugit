@@ -21,6 +21,9 @@ jobs:
         # "Tested up to" in readme.txt must match this release.
         php-versions: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
         wp-versions: ['latest']
+        # An explicit single-site value, so the multisite entry below adds a job instead of
+        # changing the PHP 8.5 one.
+        multisite: ['']
         include:
           # Minimum supported WordPress ("Requires at least"), which ClassicPress 2.x is based on.
           # WordPress 6.2 supports PHP up to 8.2.
