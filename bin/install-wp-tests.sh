@@ -2,6 +2,8 @@
 
 if [ $# -lt 3 ]; then
 	echo "usage: $0 <db-name> <db-user> <db-pass> [db-host] [wp-version] [skip-database-creation]"
+	echo "  wp-version: latest, nightly, a WordPress version such as 6.2, or classicpress (latest 2.x)"
+	echo "              or classicpress-<version> such as classicpress-2.7.3"
 	exit 1
 fi
 
@@ -19,13 +21,31 @@ WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
 
 download() {
     if [ `which curl` ]; then
-        curl -s "$1" > "$2";
+        curl -sL "$1" > "$2";
     elif [ `which wget` ]; then
         wget -nv -O "$2" "$1"
     fi
 }
 
-if [[ $WP_VERSION =~ ^[0-9]+\.[0-9]+\-(beta|RC)[0-9]+$ ]]; then
+# ClassicPress: "classicpress" for the latest release, or "classicpress-<version>".
+CP_VERSION=''
+if [[ $WP_VERSION =~ ^classicpress(-([0-9]+\.[0-9]+\.[0-9]+))?$ ]]; then
+	CP_VERSION=${BASH_REMATCH[2]}
+	if [[ -z $CP_VERSION ]]; then
+		# ClassicPress's update API offers the latest release as an upgrade from 2.0.0.
+		download https://api-v1.classicpress.net/upgrade/2.0.0.json $TMPDIR/cp-latest.json
+		CP_VERSION=$(grep -o '"version":"[^"]*' $TMPDIR/cp-latest.json | head -1 | sed 's/"version":"//')
+		if [[ -z $CP_VERSION ]]; then
+			echo "Latest ClassicPress version could not be found"
+			exit 1
+		fi
+	fi
+	echo "Using ClassicPress $CP_VERSION"
+fi
+
+if [[ -n $CP_VERSION ]]; then
+	WP_TESTS_TAG=''
+elif [[ $WP_VERSION =~ ^[0-9]+\.[0-9]+\-(beta|RC)[0-9]+$ ]]; then
 	WP_BRANCH=${WP_VERSION%\-*}
 	WP_TESTS_TAG="branches/$WP_BRANCH"
 
@@ -61,7 +81,11 @@ install_wp() {
 
 	mkdir -p $WP_CORE_DIR
 
-	if [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
+	if [[ -n $CP_VERSION ]]; then
+		# Built releases are published in the ClassicPress-release repository.
+		download https://github.com/ClassicPress/ClassicPress-release/archive/refs/tags/${CP_VERSION}.tar.gz $TMPDIR/classicpress.tar.gz
+		tar --strip-components=1 -zxmf $TMPDIR/classicpress.tar.gz -C $WP_CORE_DIR
+	elif [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
 		mkdir -p $TMPDIR/wordpress-nightly
 		download https://wordpress.org/nightly-builds/wordpress-latest.zip  $TMPDIR/wordpress-nightly/wordpress-nightly.zip
 		unzip -q $TMPDIR/wordpress-nightly/wordpress-nightly.zip -d $TMPDIR/wordpress-nightly/
@@ -105,14 +129,20 @@ install_test_suite() {
 	# set up testing suite if it doesn't yet exist
 	if [ ! -d $WP_TESTS_DIR ]; then
 		# The test suite comes from the wordpress-develop Git mirror, since GitHub runners no longer ship svn.
+		local REPO=https://github.com/WordPress/wordpress-develop.git
 		case $WP_TESTS_TAG in
 			tags/*) local GIT_REF=${WP_TESTS_TAG#tags/} ;;
 			branches/*) local GIT_REF=${WP_TESTS_TAG#branches/} ;;
 			*) local GIT_REF=trunk ;;
 		esac
+		if [[ -n $CP_VERSION ]]; then
+			# The ClassicPress source repository tags each release as <version>+dev.
+			REPO=https://github.com/ClassicPress/ClassicPress.git
+			GIT_REF="${CP_VERSION}+dev"
+		fi
 		local CHECKOUT_DIR=$TMPDIR/wordpress-develop
 		rm -rf $CHECKOUT_DIR
-		git clone --quiet --depth=1 --branch "$GIT_REF" --filter=blob:none --sparse https://github.com/WordPress/wordpress-develop.git $CHECKOUT_DIR
+		git clone --quiet --depth=1 --branch "$GIT_REF" --filter=blob:none --sparse $REPO $CHECKOUT_DIR
 		git -C $CHECKOUT_DIR sparse-checkout set tests/phpunit/includes tests/phpunit/data
 		mkdir -p $WP_TESTS_DIR
 		cp -R $CHECKOUT_DIR/tests/phpunit/includes $CHECKOUT_DIR/tests/phpunit/data $WP_TESTS_DIR/

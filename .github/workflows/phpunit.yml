@@ -81,3 +81,43 @@ jobs:
         run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest
       - name: Code coverage
         run: composer coverage
+  classicpress:
+    name: PHP ${{ matrix.php-versions }} / ClassicPress latest${{ matrix.multisite && ' / multisite' || '' }}
+    runs-on: ubuntu-latest
+    services:
+     mysql:
+       image: mariadb:10.4
+       env:
+         MYSQL_ROOT_PASSWORD: root
+       ports:
+         - 3306:3306
+       options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+    strategy:
+      fail-fast: false
+      matrix:
+        # Latest ClassicPress 2.x on its minimum PHP (7.4) and the latest PHP.
+        php-versions: ['7.4', '8.5']
+        # An explicit single-site value, so the multisite entry below adds a job instead of
+        # changing the PHP 8.5 one.
+        multisite: ['']
+        include:
+          - php-versions: '8.5'
+            multisite: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          coverage: none
+          tools: composer
+          extensions: mysql
+      - name: Install Composer dependencies for PHP
+        uses: "ramsey/composer-install@v2"
+      - name: Setup Test Environment
+        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 classicpress
+      - name: Unit Testing
+        run: composer phpunit
+        env:
+          WP_MULTISITE: ${{ matrix.multisite }}
