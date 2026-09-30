@@ -9,12 +9,13 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Adds the `[tempus_onthisday]` and `[tempus_thisweek]` shortcodes.
+ * Adds the `[tempus_onthisday]`, `[tempus_thisweek]`, and `[tempus_random]` shortcodes.
  *
- * They show the same list as the On This Day and This Week widgets, for themes and pages
- * without widget areas. Attributes match the widget settings:
+ * They show the same list as the On This Day, This Week, and Random Memory widgets, for themes
+ * and pages without widget areas. Attributes match the widget settings:
  *
  *     [tempus_onthisday title="On this day" number="5" taxonomy="category" term="travel"]
+ *     [tempus_random period="week" taxonomy="post_tag" term="family"]
  *
  * @since 1.2.1
  */
@@ -28,6 +29,7 @@ class Tempus_Shortcodes {
 	public static function register() {
 		add_shortcode( 'tempus_onthisday', array( __CLASS__, 'onthisday' ) );
 		add_shortcode( 'tempus_thisweek', array( __CLASS__, 'thisweek' ) );
+		add_shortcode( 'tempus_random', array( __CLASS__, 'random' ) );
 	}
 
 	/**
@@ -55,9 +57,25 @@ class Tempus_Shortcodes {
 	}
 
 	/**
+	 * Renders the `[tempus_random]` shortcode.
+	 *
+	 * Takes a `period` attribute ('all', 'day', or 'week'; default 'all') in addition to the
+	 * attributes in render(). `number` defaults to 1.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param array|string $atts Shortcode attributes.
+	 * @return string Shortcode HTML.
+	 */
+	public static function random( $atts ) {
+		return self::render( new Tempus_Random_Widget(), $atts, 'tempus_random' );
+	}
+
+	/**
 	 * Renders a widget's output for a shortcode.
 	 *
-	 * The attributes are sanitized the same way as widget settings.
+	 * The attributes and their defaults come from the widget's settings, and are sanitized the
+	 * same way.
 	 *
 	 * @since 1.2.1
 	 *
@@ -66,7 +84,7 @@ class Tempus_Shortcodes {
 	 *     Shortcode attributes.
 	 *
 	 *     @type string $title     Heading, linked to the archive. Default none.
-	 *     @type int    $number    Number of posts. Default 5.
+	 *     @type int    $number    Number of posts. Default is the widget's: 5, or 1 for random.
 	 *     @type string $taxonomy  Taxonomy to limit posts to, such as 'category' or 'post_tag'.
 	 *                             Default none.
 	 *     @type string $term      Slug of the term to limit posts to. Default none.
@@ -76,18 +94,10 @@ class Tempus_Shortcodes {
 	 * @return string Shortcode HTML.
 	 */
 	private static function render( $widget, $atts, $tag ) {
-		$atts     = shortcode_atts(
-			array(
-				'title'     => '',
-				'number'    => 5,
-				'taxonomy'  => '',
-				'term'      => '',
-				'nonefound' => null,
-			),
-			$atts,
-			$tag
-		);
-		$instance = $widget->update( $atts, array() );
+		$defaults              = $widget->defaults( array() );
+		$defaults['nonefound'] = null;
+		$atts                  = shortcode_atts( $defaults, $atts, $tag );
+		$instance              = $widget->update( $atts, array() );
 		// Use the widget's default text unless the shortcode sets its own.
 		if ( null === $atts['nonefound'] ) {
 			unset( $instance['nonefound'] );

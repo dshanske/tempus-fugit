@@ -47,6 +47,7 @@ function tempus_fugit_uninstall_site() {
 	global $wpdb;
 	delete_option( 'widget_tempus_onthisday_widget' );
 	delete_option( 'widget_tempus_thisweek_widget' );
+	delete_option( 'widget_tempus_random_widget' );
 	delete_option( 'tempus_fugit_widget_cache_version' );
 
 	// Cached widget results, with the current names and the names used before 1.2.1.
