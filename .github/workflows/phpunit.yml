@@ -3,7 +3,8 @@ on:
     push:
     pull_request:
 jobs:
-  phpcs:
+  phpunit:
+    name: PHP ${{ matrix.php-versions }} / WordPress ${{ matrix.wp-versions }}
     runs-on: ubuntu-latest
     services:
      mysql:
@@ -14,8 +15,19 @@ jobs:
          - 3306:3306
        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
     strategy:
+      fail-fast: false
       matrix:
-        php-versions: ['7.4', '8.0', '8.2']
+        # Latest WordPress release on every PHP version from its minimum (7.4) through the latest.
+        # "Tested up to" in readme.txt must match this release.
+        php-versions: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
+        wp-versions: ['latest']
+        include:
+          # Minimum supported WordPress ("Requires at least"), which ClassicPress 2.x is based on.
+          # WordPress 6.2 supports PHP up to 8.2.
+          - php-versions: '7.4'
+            wp-versions: '6.2'
+          - php-versions: '8.2'
+            wp-versions: '6.2'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,8 +41,35 @@ jobs:
       - name: Install Composer dependencies for PHP
         uses: "ramsey/composer-install@v2"
       - name: Setup Test Environment
-        run: composer setup-local-tests
+        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 ${{ matrix.wp-versions }}
       - name: Unit Testing
         run: composer phpunit
         env:
           PHP_VERSION: ${{ matrix.php-versions }}
+  coverage:
+    name: Code coverage (PHP 8.5 / WordPress latest)
+    runs-on: ubuntu-latest
+    services:
+     mysql:
+       image: mariadb:10.4
+       env:
+         MYSQL_ROOT_PASSWORD: root
+       ports:
+         - 3306:3306
+       options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: pcov
+          tools: composer
+          extensions: mysql
+      - name: Install Composer dependencies for PHP
+        uses: "ramsey/composer-install@v2"
+      - name: Setup Test Environment
+        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest
+      - name: Code coverage
+        run: composer coverage
