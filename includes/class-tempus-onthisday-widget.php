@@ -166,24 +166,93 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 			return array();
 		}
 		$number = max( 1, absint( $instance['number'] ) );
-		$key    = 'tempus_widget_' . md5( wp_json_encode( array( $this->id, $period, $term ? $term->term_id : 0, $number, (int) get_option( self::CACHE_VERSION_OPTION, 0 ) ) ) );
+		$key    = $this->get_cache_key( array( $period, $term ? $term->term_id : 0, $number ) );
 		$posts  = get_transient( $key );
 		if ( false === $posts ) {
 			$query['numberposts'] = $number;
 			$query['fields']      = 'ids';
-			if ( $term ) {
-				$query['tax_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Limited to the widget's term.
-					array(
-						'taxonomy' => $term->taxonomy,
-						'field'    => 'term_id',
-						'terms'    => $term->term_id,
-					),
-				);
-			}
-			$posts = get_posts( $query );
+			$posts                = get_posts( $query + $this->get_tax_query( $term ) );
 			set_transient( $key, $posts, HOUR_IN_SECONDS );
 		}
 		return $posts;
+	}
+
+	/**
+	 * Returns a transient name for cached widget data.
+	 *
+	 * The name includes the widget's ID and the cache version, so it changes whenever a
+	 * published post changes (see flush_cache()).
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param array $parts What the cached data depends on, such as the period, term, and number.
+	 * @return string Transient name.
+	 */
+	protected function get_cache_key( $parts ) {
+		return 'tempus_widget_' . md5( wp_json_encode( array_merge( array( $this->id, (int) get_option( self::CACHE_VERSION_OPTION, 0 ) ), $parts ) ) );
+	}
+
+	/**
+	 * Returns query arguments that limit posts to a term.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param WP_Term|null $term Term, or null for no limit.
+	 * @return array Query arguments with a `tax_query`, or an empty array.
+	 */
+	protected function get_tax_query( $term ) {
+		if ( ! $term ) {
+			return array();
+		}
+		return array(
+			'tax_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Limited to the widget's term.
+				array(
+					'taxonomy' => $term->taxonomy,
+					'field'    => 'term_id',
+					'terms'    => $term->term_id,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Outputs a list of posts grouped by how long ago they were published.
+	 *
+	 * Each group is headed with "N years ago..." linking to an archive for that post.
+	 *
+	 * @since 1.2.1
+	 *
+	 * @param int[]    $posts      Post IDs.
+	 * @param string   $id         HTML ID for the container.
+	 * @param string   $nonefound  Text to show when there are no posts.
+	 * @param callable $group_link Returns the URL for a group heading, given a post ID.
+	 */
+	protected function display_posts( $posts, $id, $nonefound, $group_link ) {
+		$organize = array();
+		foreach ( $posts as $post ) {
+			$diff = sprintf( '<a href="%1$s">%2$s</a>', esc_url( call_user_func( $group_link, $post ) ), esc_html( human_time_diff( get_post_timestamp( $post ) ) ) );
+			if ( ! array_key_exists( $diff, $organize ) ) {
+				$organize[ $diff ] = array();
+			}
+			$organize[ $diff ][] = $this->list_item( $post );
+		}
+
+		echo '<div id="' . esc_attr( $id ) . '">';
+		if ( ! empty( $organize ) ) {
+			echo '<ul>';
+			foreach ( $organize as $title => $group ) {
+				echo '<li>';
+				/* translators: %s: Human-readable time difference. */
+				printf( esc_html( __( '%s ago...', 'tempus-fugit' ) ), wp_kses( $title, Tempus_Fugit_Plugin::kses_clean() ) );
+				echo '<ul>';
+				echo wp_kses( implode( '', $group ), Tempus_Fugit_Plugin::kses_clean() );
+				echo '</ul></li>';
+			}
+			echo '</ul>';
+		} else {
+			echo esc_html( $nonefound );
+		}
+		echo '</div>';
 	}
 
 	/**
@@ -214,7 +283,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 		if ( $title ) {
 			echo wp_kses( $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', esc_url( $link ), $title ) . $args['after_title'], Tempus_Fugit_Plugin::kses_clean() );
 		}
-		$posts    = $this->get_widget_posts(
+		$posts = $this->get_widget_posts(
 			array(
 				'day'        => $date->format( 'd' ),
 				'monthnum'   => $date->format( 'm' ),
@@ -228,31 +297,7 @@ class Tempus_OnThisDay_Widget extends WP_Widget {
 			$term,
 			$instance
 		);
-		$organize = array();
-		foreach ( $posts as $post ) {
-			$diff = sprintf( '<a href="%1$s">%2$s</a>', esc_url( tempus_get_post_day_link( $post ) ), esc_html( human_time_diff( get_post_timestamp( $post ) ) ) );
-			if ( ! array_key_exists( $diff, $organize ) ) {
-				$organize[ $diff ] = array();
-			}
-			$organize[ $diff ][] = $this->list_item( $post );
-		}
-
-		echo '<div id="tempus-onthisday">';
-		if ( ! empty( $organize ) ) {
-			echo '<ul>';
-			foreach ( $organize as $title => $year ) {
-				echo '<li>';
-				/* translators: %s: Human-readable time difference. */
-				printf( esc_html( __( '%s ago...', 'tempus-fugit' ) ), wp_kses( $title, Tempus_Fugit_Plugin::kses_clean() ) );
-				echo '<ul>';
-				echo wp_kses( implode( '', $year ), Tempus_Fugit_Plugin::kses_clean() );
-				echo '</li></ul>';
-			}
-			echo '</ul>';
-		} else {
-			echo esc_html( $instance['nonefound'] );
-		}
-		echo '</div>';
+		$this->display_posts( $posts, 'tempus-onthisday', $instance['nonefound'], 'tempus_get_post_day_link' );
 		echo $args['after_widget']; // phpcs:ignore
 	}
 

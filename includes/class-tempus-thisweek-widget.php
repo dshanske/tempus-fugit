@@ -78,7 +78,7 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 		if ( ! empty( $instance['title'] ) ) {
 			echo wp_kses( $args['before_title'] . sprintf( '<a href="%1$s">%2$s</a>', esc_url( $link ), $title ) . $args['after_title'], Tempus_Fugit_Plugin::kses_clean() );
 		}
-		$posts    = $this->get_widget_posts(
+		$posts = $this->get_widget_posts(
 			array(
 				// Matched as an ISO-8601 week by Tempus_This_Week::posts_where().
 				'tempus_iso_week'  => (int) $date->format( 'W' ),
@@ -93,31 +93,7 @@ class Tempus_ThisWeek_Widget extends Tempus_OnThisDay_Widget {
 			$term,
 			$instance
 		);
-		$organize = array();
-		foreach ( $posts as $post ) {
-			$diff = sprintf( '<a href="%1$s">%2$s</a>', esc_url( tempus_get_post_week_link( $post ) ), esc_html( human_time_diff( get_post_timestamp( $post ) ) ) );
-			if ( ! array_key_exists( $diff, $organize ) ) {
-				$organize[ $diff ] = array();
-			}
-			$organize[ $diff ][] = $this->list_item( $post );
-		}
-
-		echo '<div id="tempus-thisweek">';
-		if ( ! empty( $organize ) ) {
-			echo '<ul>';
-			foreach ( $organize as $title => $year ) {
-				echo '<li>';
-				/* translators: %s: Human-readable time difference. */
-				printf( esc_html__( '%s ago...', 'tempus-fugit' ), wp_kses( $title, Tempus_Fugit_Plugin::kses_clean() ) );
-				echo '<ul>';
-				echo wp_kses( implode( '', $year ), Tempus_Fugit_Plugin::kses_clean() );
-				echo '</li></ul>';
-			}
-			echo '</ul>';
-		} else {
-			echo esc_html( $instance['nonefound'] );
-		}
-		echo '</div>';
+		$this->display_posts( $posts, 'tempus-thisweek', $instance['nonefound'], 'tempus_get_post_week_link' );
 		echo $args['after_widget']; // phpcs:ignore
 	}
 }
