@@ -137,6 +137,26 @@ class Test_Tempus_On_This_Day extends WP_UnitTestCase {
 		$this->assertFalse( Tempus_This_Week::is_thisweek() );
 	}
 
+	public function test_onthisday_specific_date_lists_previous_years_only() {
+		$year     = (int) $this->today->format( 'Y' );
+		$current  = self::factory()->post->create( array( 'post_date' => $year . '-01-01 00:00:01' ) );
+		$previous = self::factory()->post->create( array( 'post_date' => ( $year - 3 ) . '-01-01 12:00:00' ) );
+
+		$this->go_to( home_url( '/onthisday/01/01/' ) );
+		$this->assertSame( array( $previous ), wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );
+		$this->assertNotContains( $current, wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );
+	}
+
+	public function test_thisweek_specific_week_lists_previous_years_only() {
+		$year     = (int) $this->today->format( 'o' );
+		$current  = self::factory()->post->create( array( 'post_date' => $this->today->setISODate( $year, 1, 1 )->setTime( 0, 0, 1 )->format( 'Y-m-d H:i:s' ) ) );
+		$previous = self::factory()->post->create( array( 'post_date' => $this->today->setISODate( $year - 3, 1, 3 )->setTime( 12, 0 )->format( 'Y-m-d H:i:s' ) ) );
+
+		$this->go_to( home_url( '/thisweek/01/' ) );
+		$this->assertSame( array( $previous ), wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );
+		$this->assertNotContains( $current, wp_list_pluck( $GLOBALS['wp_query']->posts, 'ID' ) );
+	}
+
 	public function test_onthisday_widget_shows_previous_years_only() {
 		$this->create_post_years_ago( 4 );
 		$this->create_post_years_ago( 0 );

@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  * Adds On This Day archives.
  *
  * `/onthisday` lists posts from today's date in previous years, and `/onthisday/MM/DD`
- * lists posts from that date in every year.
+ * lists posts from that date in previous years.
  *
  * @since 1.0.0
  */
@@ -252,11 +252,15 @@ class Tempus_On_This_Day {
 	}
 
 	/**
-	 * Turns an `/onthisday` request into a query for today's month and day in previous years.
+	 * Limits On This Day requests to a month and day in previous years.
+	 *
+	 * `/onthisday` uses today's date. `/onthisday/MM/DD` uses that date; core adds the month and
+	 * day conditions. Either way, only posts from before this year are listed.
 	 *
 	 * Hooked to `pre_get_posts`. Only affects the main query on the front end.
 	 *
 	 * @since 1.0.0
+	 * @since 1.2.1 Also excludes the current year from `/onthisday/MM/DD`.
 	 *
 	 * @param WP_Query $query The query being prepared.
 	 * @return WP_Query|void The query, or nothing for requests that are skipped.
@@ -266,26 +270,24 @@ class Tempus_On_This_Day {
 		if ( is_admin() || ! $query->is_main_query() ) {
 			return;
 		}
-		$onthisday = get_query_var( 'onthisday' );
-		// Only when no specific date was requested.
-		if ( $onthisday && empty( get_query_var( 'year' ) ) && empty( get_query_var( 'monthnum' ) ) && empty( get_query_var( 'day' ) ) ) {
-			$now                    = new DateTime( 'now', wp_timezone() );
+		if ( ! $query->get( 'onthisday' ) || $query->get( 'year' ) ) {
+			return $query;
+		}
+		$now    = new DateTimeImmutable( 'now', wp_timezone() );
+		$clause = array(
+			'before' => $now->setDate( (int) $now->format( 'Y' ), 1, 1 )->setTime( 0, 0 )->format( 'Y-m-d H:i:s' ),
+		);
+		// Without a specific date, use today's.
+		if ( ! $query->get( 'monthnum' ) && ! $query->get( 'day' ) ) {
 			$query->is_date         = true;
 			$query->is_day          = true;
 			$query->is_home         = false;
 			$query->is_archive      = true;
 			$query->is_comment_feed = false;
-			$query->set(
-				'date_query',
-				array(
-					array(
-						'month'  => $now->format( 'n' ),
-						'day'    => $now->format( 'j' ),
-						'before' => 'yesterday',
-					),
-				)
-			);
+			$clause['month']        = (int) $now->format( 'n' );
+			$clause['day']          = (int) $now->format( 'j' );
 		}
+		$query->set( 'date_query', array( $clause ) );
 		return $query;
 	}
 

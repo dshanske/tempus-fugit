@@ -195,6 +195,25 @@ class Test_Tempus_Taxonomy_Archives extends WP_UnitTestCase {
 		return $this->posts[ $key ];
 	}
 
+	public function test_specific_date_term_archive_lists_previous_years_only() {
+		$year     = (int) $this->today->format( 'Y' );
+		$current  = self::factory()->post->create(
+			array(
+				'post_date'  => $year . '-01-01 00:00:01',
+				'tags_input' => array( 'foo' ),
+			)
+		);
+		$previous = self::factory()->post->create(
+			array(
+				'post_date'  => ( $year - 3 ) . '-01-01 12:00:00',
+				'tags_input' => array( 'foo' ),
+			)
+		);
+		$this->go_to( home_url( '/tag/foo/onthisday/01/01/' ) );
+		$this->assertContains( $previous, $this->query_ids() );
+		$this->assertNotContains( $current, $this->query_ids() );
+	}
+
 	public function test_thisweek_term_archive() {
 		$this->go_to( home_url( '/tag/foo/thisweek/' ) );
 		$this->assertTrue( Tempus_This_Week::is_thisweek() );
