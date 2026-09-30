@@ -15,12 +15,17 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// These run when the file loads, before test coverage starts. The tests check that the hooks are registered.
+// phpcs:disable Squiz.Commenting.InlineComment.InvalidEndChar -- PHPUnit requires the exact annotation text.
+// @codeCoverageIgnoreStart
 register_activation_hook( __FILE__, array( 'Tempus_Fugit_Plugin', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Tempus_Fugit_Plugin', 'deactivate' ) );
 add_action( 'upgrader_process_complete', array( 'Tempus_Fugit_Plugin', 'upgrader_process_complete' ), 10, 2 );
 
 add_action( 'plugins_loaded', array( 'Tempus_Fugit_Plugin', 'plugins_loaded' ) );
 add_action( 'init', array( 'Tempus_Fugit_Plugin', 'init' ) );
+// @codeCoverageIgnoreEnd
+// phpcs:enable Squiz.Commenting.InlineComment.InvalidEndChar
 
 /**
  * Plugin bootstrap.
