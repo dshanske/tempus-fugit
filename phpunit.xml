@@ -11,4 +11,10 @@
 			<directory prefix="test-" suffix=".php">./tests/</directory>
 		</testsuite>
 	</testsuites>
+	<coverage includeUncoveredFiles="true">
+		<include>
+			<file>./tempus-fugit.php</file>
+			<directory suffix=".php">./includes</directory>
+		</include>
+	</coverage>
 </phpunit>
