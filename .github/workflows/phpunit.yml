@@ -4,7 +4,7 @@ on:
     pull_request:
 jobs:
   phpunit:
-    name: PHP ${{ matrix.php-versions }} / WordPress ${{ matrix.wp-versions }}
+    name: PHP ${{ matrix.php-versions }} / WordPress ${{ matrix.wp-versions }}${{ matrix.multisite && ' / multisite' || '' }}
     runs-on: ubuntu-latest
     services:
      mysql:
@@ -28,6 +28,10 @@ jobs:
             wp-versions: '6.2'
           - php-versions: '8.2'
             wp-versions: '6.2'
+          # Multisite, for network-wide code such as uninstalling.
+          - php-versions: '8.5'
+            wp-versions: 'latest'
+            multisite: '1'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,8 +50,9 @@ jobs:
         run: composer phpunit
         env:
           PHP_VERSION: ${{ matrix.php-versions }}
+          WP_MULTISITE: ${{ matrix.multisite }}
   coverage:
-    name: Code coverage (PHP 8.5 / WordPress latest)
+    name: Code coverage (PHP 8.5 / WordPress latest, single site and multisite)
     runs-on: ubuntu-latest
     services:
      mysql:
